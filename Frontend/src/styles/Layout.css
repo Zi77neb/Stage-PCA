@@ -1,0 +1,19 @@
+/* ===== LAYOUT GLOBAL ===== */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f5f0e8;
+}
+
+/* ===== CONTENU PRINCIPAL ===== */
+.layout-content {
+  margin-left: 240px;
+  flex: 1;
+  padding: 36px 40px;
+  background-color: #f5f0e8;
+  min-height: 100vh;
+  box-sizing: border-box;
+  width: calc(100vw - 240px); /* ✅ prend tout l'espace visible restant */
+  overflow-x: hidden;
+}

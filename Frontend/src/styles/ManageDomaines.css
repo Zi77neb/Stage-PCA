@@ -1,0 +1,338 @@
+/* ===== CONTAINER ===== */
+.domaines-container {
+  width: 100%;
+  font-family: 'Georgia', serif;
+}
+
+/* ===== HEADER ===== */
+.domaines-header {
+  margin-bottom: 32px;
+}
+
+.domaines-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #3a6147;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.5px;
+}
+
+.domaines-subtitle {
+  color: #7a9e7e;
+  font-size: 15px;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ===== FORM CARD ===== */
+.domaines-form-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 16px rgba(74, 124, 89, 0.1);
+  border: 1px solid #e8d5b0;
+}
+
+.form-card-title {
+  font-size: 16px;
+  color: #4a7c59;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.domaines-form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ===== INPUT ===== */
+.domaines-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 16px;
+  border: 1.5px solid #c8e6c9;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #3e3e3e;
+  background: #fafff9;
+  outline: none;
+  transition: all 0.25s ease;
+  font-family: 'Georgia', serif;
+}
+
+.domaines-input:focus {
+  border-color: #6baf7a;
+  box-shadow: 0 0 0 3px rgba(107, 175, 122, 0.15);
+  background: #ffffff;
+}
+
+.domaines-input::placeholder {
+  color: #b0c4b1;
+}
+
+/* ===== SELECT ===== */
+.domaines-select {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 16px;
+  border: 1.5px solid #c8e6c9;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #3e3e3e;
+  background: #fafff9;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Georgia', serif;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236baf7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.domaines-select:focus {
+  border-color: #6baf7a;
+  box-shadow: 0 0 0 3px rgba(107, 175, 122, 0.15);
+  background-color: #ffffff;
+}
+
+/* ===== BOUTON AJOUTER ===== */
+.domaines-btn-add {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #6baf7a, #4a7c59);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.3px;
+  font-family: 'Georgia', serif;
+  white-space: nowrap;
+}
+
+.domaines-btn-add:hover {
+  background: linear-gradient(135deg, #81c784, #5a9468);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(74, 124, 89, 0.3);
+}
+
+.domaines-btn-add:active {
+  transform: translateY(0);
+}
+
+/* ===== TABLE CARD ===== */
+.domaines-table-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 4px 16px rgba(74, 124, 89, 0.1);
+  border: 1px solid #e8d5b0;
+}
+
+.table-card-title {
+  font-size: 16px;
+  color: #4a7c59;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+/* ===== TABLE ===== */
+.domaines-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.domaines-table thead tr {
+  background: linear-gradient(135deg, #e8f5e9, #f5f0e8);
+  border-bottom: 2px solid #c8e6c9;
+}
+
+.domaines-table thead th {
+  padding: 14px 18px;
+  text-align: left;
+  color: #4a7c59;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.domaines-table tbody tr {
+  border-bottom: 1px solid #f0e8d8;
+  transition: background 0.2s ease;
+}
+
+.domaines-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.domaines-table tbody tr:hover {
+  background-color: #fafff9;
+}
+
+.domaines-table td {
+  padding: 14px 18px;
+  color: #3e3e3e;
+  vertical-align: middle;
+}
+
+/* ===== BADGE ID ===== */
+.badge-id {
+  background: #e8f5e9;
+  color: #4a7c59;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ===== DOMAINE NAME & BANQUE ===== */
+.domaine-name {
+  font-weight: 500;
+  color: #3e3e3e;
+}
+
+.domaine-banque {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f0e8;
+  color: #7a6040;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #e8d5b0;
+}
+
+/* ===== EMPTY STATE ===== */
+.domaines-empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: #a0b8a4;
+}
+
+.domaines-empty span {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.domaines-empty p {
+  font-size: 16px;
+  font-style: italic;
+  margin: 0;
+}
+/* ===== ACTION BUTTONS ===== */
+.action-btns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ===== BOUTON MODIFIER ===== */
+.btn-edit {
+  padding: 7px 14px;
+  background: transparent;
+  color: #4a7c59;
+  border: 1.5px solid #4a7c59;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Georgia', serif;
+  white-space: nowrap;
+}
+
+.btn-edit:hover {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-color: #2e7d32;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(74, 124, 89, 0.2);
+}
+
+/* ===== BOUTON CONFIRMER ===== */
+.btn-confirm {
+  padding: 7px 14px;
+  background: linear-gradient(135deg, #6baf7a, #4a7c59);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Georgia', serif;
+  white-space: nowrap;
+}
+
+.btn-confirm:hover {
+  background: linear-gradient(135deg, #81c784, #5a9468);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(74, 124, 89, 0.3);
+}
+
+/* ===== BOUTON ANNULER ===== */
+.btn-cancel {
+  padding: 7px 14px;
+  background: transparent;
+  color: #9e9e9e;
+  border: 1.5px solid #9e9e9e;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Georgia', serif;
+  white-space: nowrap;
+}
+
+.btn-cancel:hover {
+  background: #f5f5f5;
+  color: #616161;
+  border-color: #616161;
+  transform: translateY(-1px);
+}
+
+/* ===== INPUT INLINE ===== */
+.banques-input-inline,
+.domaines-input-inline,
+.codes-input-inline {
+  padding: 7px 12px;
+  border: 1.5px solid #6baf7a;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #3e3e3e;
+  background: #fafff9;
+  outline: none;
+  font-family: 'Georgia', serif;
+  width: 100%;
+  max-width: 200px;
+  box-shadow: 0 0 0 3px rgba(107, 175, 122, 0.15);
+}
+
+/* ===== SELECT INLINE ===== */
+.domaines-select-inline,
+.codes-select-inline {
+  padding: 7px 28px 7px 12px;
+  border: 1.5px solid #6baf7a;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #3e3e3e;
+  background: #fafff9;
+  outline: none;
+  font-family: 'Georgia', serif;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236baf7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  box-shadow: 0 0 0 3px rgba(107, 175, 122, 0.15);
+  cursor: pointer;
+}

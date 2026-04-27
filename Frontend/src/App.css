@@ -1,0 +1,29 @@
+/* ===== RESET & BASE GLOBAL ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f5f0e8;
+  font-family: 'Georgia', serif;
+  color: #3e3e3e;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  font-family: 'Georgia', serif;
+}
+
+input, textarea, select {
+  font-family: 'Georgia', serif;
+}
