@@ -2,7 +2,7 @@
 .login-page {
   min-height: 100vh;
   width: 100%;
-  background: linear-gradient(135deg, #e8f5e9 0%, #f5f0e8 50%, #e8f5e9 100%);
+  background: linear-gradient(135deg, #fde8d8 0%, #f5f0e8 50%, #fde8d8 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,9 +19,9 @@
   width: 100%;
   max-width: 420px;
   box-shadow:
-    0 20px 60px rgba(74, 124, 89, 0.15),
-    0 4px 16px rgba(74, 124, 89, 0.1);
-  border: 1px solid #e8d5b0;
+    0 20px 60px rgba(232, 114, 42, 0.15),
+    0 4px 16px rgba(232, 114, 42, 0.1);
+  border: 1px solid #f5c4a0;
   text-align: center;
   animation: fadeInUp 0.4s ease;
 }
@@ -54,13 +54,13 @@
 .login-title {
   font-size: 28px;
   font-weight: 700;
-  color: #3a6147;
+  color: #3D3D3D;
   margin: 0 0 8px 0;
   letter-spacing: 0.5px;
 }
 
 .login-subtitle {
-  color: #7a9e7e;
+  color: #b05a20;
   font-size: 14px;
   margin: 0 0 32px 0;
   font-style: italic;
@@ -84,7 +84,7 @@
 .login-label {
   font-size: 14px;
   font-weight: 600;
-  color: #4a7c59;
+  color: #E8722A;
   letter-spacing: 0.3px;
 }
 
@@ -92,11 +92,11 @@
 .login-input {
   width: 100%;
   padding: 13px 16px;
-  border: 1.5px solid #c8e6c9;
+  border: 1.5px solid #f5c4a0;
   border-radius: 10px;
   font-size: 15px;
-  color: #3e3e3e;
-  background: #fafff9;
+  color: #3D3D3D;
+  background: #fffaf7;
   outline: none;
   transition: all 0.25s ease;
   font-family: 'Georgia', serif;
@@ -104,13 +104,13 @@
 }
 
 .login-input:focus {
-  border-color: #6baf7a;
-  box-shadow: 0 0 0 3px rgba(107, 175, 122, 0.15);
+  border-color: #E8722A;
+  box-shadow: 0 0 0 3px rgba(232, 114, 42, 0.15);
   background: #ffffff;
 }
 
 .login-input::placeholder {
-  color: #b0c4b1;
+  color: #d4a882;
   font-style: italic;
 }
 
@@ -118,7 +118,7 @@
 .login-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #6baf7a, #4a7c59);
+  background: linear-gradient(135deg, #f0a876, #E8722A);
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -136,9 +136,9 @@
 }
 
 .login-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #81c784, #5a9468);
+  background: linear-gradient(135deg, #f5b88a, #d4621e);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(74, 124, 89, 0.35);
+  box-shadow: 0 8px 20px rgba(232, 114, 42, 0.35);
 }
 
 .login-btn:active:not(:disabled) {

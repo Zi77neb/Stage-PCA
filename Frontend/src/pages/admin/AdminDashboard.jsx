@@ -122,49 +122,7 @@ export default function AdminDashboard() {
 
       </div>
 
-      {/* ===== CODES STATUS ===== */}
-      <div className="codes-status-card">
-        <h3 className="section-title">📈 Statut des Codes</h3>
-        <div className="codes-status-grid">
-
-          <div className="codes-status-item available">
-            <span className="codes-status-icon">✅</span>
-            <div>
-              <span className="codes-status-number">{stats.codesAvailable}</span>
-              <span className="codes-status-label">Disponibles</span>
-            </div>
-            <div className="codes-status-bar">
-              <div
-                className="codes-status-fill available"
-                style={{
-                  width: stats.codes
-                    ? `${(stats.codesAvailable / stats.codes) * 100}%`
-                    : "0%",
-                }}
-              ></div>
-            </div>
-          </div>
-
-          <div className="codes-status-item used">
-            <span className="codes-status-icon">❌</span>
-            <div>
-              <span className="codes-status-number">{stats.codesUsed}</span>
-              <span className="codes-status-label">Utilisés</span>
-            </div>
-            <div className="codes-status-bar">
-              <div
-                className="codes-status-fill used"
-                style={{
-                  width: stats.codes
-                    ? `${(stats.codesUsed / stats.codes) * 100}%`
-                    : "0%",
-                }}
-              ></div>
-            </div>
-          </div>
-
-        </div>
-      </div>
+      
 
       {/* ===== GRILLE BAS ===== */}
       <div className="dashboard-bottom-grid">

@@ -21,11 +21,11 @@ private CurrentUserService currentUserService;
 public User login(@RequestBody LoginRequest request) {
 
     User user = authService.login(
-        request.getUsername(),
+        request.getEmail(), // 🔥 EMAIL
         request.getPassword()
     );
 
-    currentUserService.setUser(user); // 🔥 ICI
+    currentUserService.setUser(user);
 
     return user;
 }

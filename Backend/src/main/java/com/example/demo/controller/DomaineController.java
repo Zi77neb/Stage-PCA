@@ -4,7 +4,7 @@ import com.example.demo.dto.DomaineRequest;
 
 import com.example.demo.model.entity.Domaine;
 import com.example.demo.service.interfaces.DomaineService;
-
+import com.example.demo.dto.DomaineResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,18 +28,15 @@ public class DomaineController {
         return domaineService.getAll();
     }
 
+ @GetMapping("/with-banque")
+public List<DomaineResponse> getAllWithBanque() {
+    return domaineService.getAllWithBanque();
+}
     // 🔄 UPDATE
-    @PutMapping("/{id}")
-    public Domaine update(@PathVariable Long id, @RequestBody DomaineRequest request) {
-
-        Domaine d = domaineService.getById(id);
-
-        d.setName(request.getName());
-
-        // ⚠️ tu dois aussi gérer banque
-        // (comme dans service)
-        return domaineService.create(request); // ou mieux: méthode update()
-    }
+@PutMapping("/{id}")
+public Domaine update(@PathVariable Long id, @RequestBody DomaineRequest request) {
+    return domaineService.update(id, request); // ✅ correct
+}
 
     // ❌ DELETE
     @DeleteMapping("/{id}")

@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(Role.valueOf(request.getRole()));
         user.setStatus(Status.ACTIVE);
         user.setCreatedAt(LocalDateTime.now());
-
+        user.setPassword(request.getPassword());
         user.setDomaine(domaine);
         user.setBanque(banque);
 

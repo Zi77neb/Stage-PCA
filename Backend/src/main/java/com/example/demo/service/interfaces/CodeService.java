@@ -16,4 +16,7 @@ public interface CodeService {
     Code getByCode(String code);
 
     void delete(Long id);
+
+    // ✅ AJOUT
+    Code update(Long id, CodeRequest request);
 }

@@ -9,6 +9,15 @@ public class UserRequest {
     private String role;
     private Long domaineId;
     private Long banqueId;
+    private String password;
+
+public String getPassword() {
+    return password;
+}
+
+public void setPassword(String password) {
+    this.password = password;
+}
     public String getUsername() {
         return username;
     }

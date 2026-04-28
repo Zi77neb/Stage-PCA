@@ -55,4 +55,18 @@ public class CodeServiceImpl implements CodeService {
     public void delete(Long id) {
         codeRepository.deleteById(id);
     }
+    @Override
+public Code update(Long id, CodeRequest request) {
+
+    Code c = codeRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Code not found"));
+
+    Domaine domaine = domaineRepository.findById(request.getDomaineId())
+            .orElseThrow(() -> new RuntimeException("Domaine not found"));
+
+    c.setCode(request.getCode());
+    c.setDomaine(domaine);
+
+    return codeRepository.save(c); // ✅ UPDATE
+}
 }

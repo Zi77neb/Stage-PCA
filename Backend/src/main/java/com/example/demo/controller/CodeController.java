@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import com.example.demo.dto.CodeRequest;
 import com.example.demo.model.entity.Code;
 import com.example.demo.service.interfaces.CodeService;
-import com.example.demo.service.interfaces.DomaineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,14 +29,9 @@ public class CodeController {
 
     // 🔄 UPDATE
     @PutMapping("/{id}")
-    public Code update(@PathVariable Long id, @RequestBody CodeRequest request) {
-
-        Code c = codeService.getById(id);
-
-        c.setCode(request.getCode());
-
-        return codeService.create(request); // ou update()
-    }
+public Code update(@PathVariable Long id, @RequestBody CodeRequest request) {
+    return codeService.update(id, request); // ✅ correct
+}
 
     // ❌ DELETE
     @DeleteMapping("/{id}")

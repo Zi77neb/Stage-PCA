@@ -11,6 +11,7 @@ export default function ManageUsers() {
     username: "",
     fullName: "",
     email: "",
+    password: "", // 🔥 AJOUT
     role: "USER",
     banqueId: "",
     domaineId: ""
@@ -19,8 +20,11 @@ export default function ManageUsers() {
   // 🔄 LOAD DATA
   const loadData = async () => {
     const u = await API.get("/admin/users");
-    const d = await API.get("/admin/domaines");
+
+    // 🔥 OPTIONNEL (si tu veux banque affichée propre)
+    const d = await API.get("/admin/domaines"); 
     const b = await API.get("/admin/banques");
+
     setUsers(u.data);
     setDomaines(d.data);
     setBanques(b.data);
@@ -31,8 +35,25 @@ export default function ManageUsers() {
   // ➕ CREATE USER
   const createUser = async () => {
     try {
+      // 🔥 VALIDATION
+      if (!form.username || !form.password) {
+        alert("Username et mot de passe obligatoires");
+        return;
+      }
+
       await API.post("/admin/users", form);
-      setForm({ username: "", fullName: "", email: "", role: "USER", banqueId: "", domaineId: "" });
+
+      // 🔥 RESET CORRIGÉ
+      setForm({
+        username: "",
+        fullName: "",
+        email: "",
+        password: "", // 🔥 IMPORTANT
+        role: "USER",
+        banqueId: "",
+        domaineId: ""
+      });
+
       loadData();
     } catch (e) {
       console.error(e);
@@ -98,6 +119,18 @@ export default function ManageUsers() {
             />
           </div>
 
+          {/* 🔥 PASSWORD AJOUTÉ */}
+          <div className="users-field">
+            <label className="users-label">🔒 Mot de passe</label>
+            <input
+              className="users-input"
+              type="password"
+              placeholder="Mot de passe"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+          </div>
+
           <div className="users-field">
             <label className="users-label">🎭 Rôle</label>
             <select
@@ -115,7 +148,9 @@ export default function ManageUsers() {
             <select
               className="users-select"
               value={form.banqueId}
-              onChange={(e) => setForm({ ...form, banqueId: e.target.value, domaineId: "" })}
+              onChange={(e) =>
+                setForm({ ...form, banqueId: e.target.value, domaineId: "" })
+              }
             >
               <option value="">Choisir une banque</option>
               {banques.map((b) => (
@@ -136,7 +171,9 @@ export default function ManageUsers() {
                 {form.banqueId ? "Choisir un domaine" : "Sélectionnez d'abord une banque"}
               </option>
               {filteredDomaines.map((d) => (
-                <option key={d.id} value={d.id}>{d.name}</option>
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
               ))}
             </select>
           </div>
@@ -153,7 +190,9 @@ export default function ManageUsers() {
 
       {/* ===== TABLE ===== */}
       <div className="users-table-card">
-        <h3 className="users-table-title">📋 Liste des Utilisateurs ({users.length})</h3>
+        <h3 className="users-table-title">
+          📋 Liste des Utilisateurs ({users.length})
+        </h3>
 
         {users.length === 0 ? (
           <div className="users-empty">
@@ -174,10 +213,12 @@ export default function ManageUsers() {
                 <th>Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
                   <td><span className="badge-id">#{u.id}</span></td>
+
                   <td>
                     <div className="user-info">
                       <div className="user-avatar">
@@ -186,25 +227,29 @@ export default function ManageUsers() {
                       <span className="user-name">{u.username}</span>
                     </div>
                   </td>
-                  <td><span className="user-fullname">{u.fullName || "—"}</span></td>
-                  <td><span className="user-email">📧 {u.email || "—"}</span></td>
+
+                  <td>{u.fullName || "—"}</td>
+                  <td>📧 {u.email || "—"}</td>
+
                   <td>
                     <span className={`role-badge ${u.role === "ADMIN" ? "admin" : "user"}`}>
                       {u.role === "ADMIN" ? "👑 ADMIN" : "👤 USER"}
                     </span>
                   </td>
+
                   <td>
-                    <span className="domaine-badge">
-                      {u.domaine?.name ? `🌐 ${u.domaine.name}` : "—"}
-                    </span>
+                    {u.domaine?.name ? `🌐 ${u.domaine.name}` : "—"}
                   </td>
+
                   <td>
-                    <span className="banque-badge">
-                      {u.banque?.name ? `🏦 ${u.banque.name}` : "—"}
-                    </span>
+                    {u.banque?.name ? `🏦 ${u.banque.name}` : "—"}
                   </td>
+
                   <td>
-                    <button className="btn-delete" onClick={() => deleteUser(u.id)}>
+                    <button
+                      className="btn-delete"
+                      onClick={() => deleteUser(u.id)}
+                    >
                       🗑️ Supprimer
                     </button>
                   </td>

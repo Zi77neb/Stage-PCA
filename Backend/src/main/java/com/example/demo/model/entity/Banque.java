@@ -1,7 +1,5 @@
 package com.example.demo.model.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,7 +21,7 @@ public class Banque {
     private String name; // BMCE, ATTIJARI
     @ManyToOne
     private Domaine domaine;
-    private LocalDateTime createdAt;
+    
     // getters setters
     public Long getId() {
         return id;

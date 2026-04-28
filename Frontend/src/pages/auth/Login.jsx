@@ -8,22 +8,31 @@ export default function Login() {
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
+  // 🔥 CHANGÉ username → email
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     try {
       setLoading(true);
-      const user = await login(username, password);
+
+      // 🔥 ENVOI EMAIL
+      const user = await login(email, password);
 
       if (!user || user.error) {
-        alert("Login failed");
+        alert("Email ou mot de passe incorrect");
         return;
       }
 
       setUser(user);
-      navigate("/dashboard");
+
+      // 🔥 OPTION (rediriger selon rôle)
+      if (user.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/user");
+      }
 
     } catch (e) {
       console.error(e);
@@ -36,30 +45,29 @@ export default function Login() {
   return (
     <div className="login-page">
 
-      {/* ===== CARTE DE CONNEXION ===== */}
       <div className="login-card">
 
-        {/* Logo / Icône */}
         <div className="login-logo"></div>
 
-        {/* Titre */}
         <h2 className="login-title">Bienvenue</h2>
-        <p className="login-subtitle">Connectez-vous à votre espace admin</p>
+        <p className="login-subtitle">Connectez-vous à votre espace</p>
 
-        {/* Formulaire */}
         <div className="login-form">
 
+          {/* 🔥 EMAIL */}
           <div className="login-field">
-            <label className="login-label">👤 Nom d'utilisateur</label>
+            <label className="login-label">📧 Email</label>
             <input
               className="login-input"
-              placeholder="Entrez votre nom d'utilisateur"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              placeholder="Entrez votre email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
             />
           </div>
 
+          {/* 🔒 PASSWORD */}
           <div className="login-field">
             <label className="login-label">🔒 Mot de passe</label>
             <input
