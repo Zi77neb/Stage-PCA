@@ -1,14 +1,15 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.model.entity.User;
-import com.example.demo.model.enums.Status;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.service.interfaces.AuthService;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import com.example.demo.exception.UnauthorizedException;
+import com.example.demo.model.entity.User;
+import com.example.demo.model.enums.Status;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.interfaces.AuthService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -17,24 +18,29 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
 
     @Override
-public User login(String email, String password) {
+    public User login(String email, String password) {
 
-    Optional<User> userOpt = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
-    if (userOpt.isEmpty()) {
-        throw new RuntimeException("User not found");
+        if (user.getStatus() == Status.DISABLED) {
+            throw new UnauthorizedException("User account is disabled");
+        }
+
+        if (user.getPassword() == null || !user.getPassword().equals(password)) {
+            throw new UnauthorizedException("Invalid email or password");
+        }
+
+        return user;
     }
 
-    User user = userOpt.get();
-
-    if (user.getStatus() == Status.DISABLED) {
-        throw new RuntimeException("User disabled");
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
-    if (user.getPassword() == null || !user.getPassword().equals(password)) {
-        throw new RuntimeException("Invalid credentials");
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
-
-    return user;
-}
 }

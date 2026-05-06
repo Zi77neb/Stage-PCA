@@ -8,35 +8,48 @@ export default function Login() {
   const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // 🔥 CHANGÉ username → email
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const getErrorMessage = (err) => {
+    return (
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err.message ||
+      "Erreur serveur"
+    );
+  };
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Email et mot de passe obligatoires");
+      return;
+    }
+
     try {
       setLoading(true);
+      setError(null);
 
-      // 🔥 ENVOI EMAIL
       const user = await login(email, password);
 
-      if (!user || user.error) {
-        alert("Email ou mot de passe incorrect");
+      if (!user) {
+        setError("Email ou mot de passe incorrect");
         return;
       }
 
       setUser(user);
 
-      // 🔥 OPTION (rediriger selon rôle)
       if (user.role === "ADMIN") {
-        navigate("/admin");
+        navigate("/dashboard");
       } else {
-        navigate("/user");
+        navigate("/dashboard");
       }
 
     } catch (e) {
-      console.error(e);
-      alert("Erreur serveur");
+      setError(getErrorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -52,9 +65,14 @@ export default function Login() {
         <h2 className="login-title">Bienvenue</h2>
         <p className="login-subtitle">Connectez-vous à votre espace</p>
 
+        {error && (
+          <div className="login-error">
+            ❌ {error}
+          </div>
+        )}
+
         <div className="login-form">
 
-          {/* 🔥 EMAIL */}
           <div className="login-field">
             <label className="login-label">📧 Email</label>
             <input
@@ -67,7 +85,6 @@ export default function Login() {
             />
           </div>
 
-          {/* 🔒 PASSWORD */}
           <div className="login-field">
             <label className="login-label">🔒 Mot de passe</label>
             <input
@@ -93,7 +110,9 @@ export default function Login() {
           </button>
 
         </div>
+
       </div>
+
     </div>
   );
 }

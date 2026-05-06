@@ -1,18 +1,28 @@
 package com.example.demo.dto;
 
+import java.util.Set;
+
 public class DomaineResponse {
 
     private Long id;
     private String name;
-    private String banqueName;
+    private Set<String> banqueNames;
 
-    public DomaineResponse(Long id, String name, String banqueName) {
+    public DomaineResponse(Long id, String name, Set<String> banqueNames) {
         this.id = id;
         this.name = name;
-        this.banqueName = banqueName;
+        this.banqueNames = banqueNames;
     }
 
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getBanqueName() { return banqueName; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Set<String> getBanqueNames() {
+        return banqueNames;
+    }
 }

@@ -1,23 +1,32 @@
 package com.example.demo.model.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+
 @Entity
-@Table(name = "document_user")
+@Table(name = "document_user",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "document_id"}))
 public class DocumentUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-@JoinColumn(name = "user_id")
-private User user;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-@ManyToOne
-@JoinColumn(name = "document_id")
-private Document document;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "document_id", nullable = false)
+    private Document document;
 
     private boolean viewed = false;
     private LocalDateTime viewedAt;
@@ -25,27 +34,31 @@ private Document document;
     private LocalDateTime assignedAt;
 
     public boolean isViewed() {
-    return viewed;
-}
+        return viewed;
+    }
 
-public void setViewed(boolean viewed) {
-    this.viewed = viewed;
-}
+    public void setViewed(boolean viewed) {
+        this.viewed = viewed;
+    }
 
-public LocalDateTime getViewedAt() {
-    return viewedAt;
-}
+    public LocalDateTime getViewedAt() {
+        return viewedAt;
+    }
 
-public void setViewedAt(LocalDateTime viewedAt) {
-    this.viewedAt = viewedAt;
-}
+    public void setViewedAt(LocalDateTime viewedAt) {
+        this.viewedAt = viewedAt;
+    }
+
     // getters setters
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
-    }  public Document getDocument() { // 🔥 IMPORTANT
+    }
+
+    public Document getDocument() {
         return document;
     }
 
@@ -60,9 +73,11 @@ public void setViewedAt(LocalDateTime viewedAt) {
     public void setUser(User user) {
         this.user = user;
     }
+
     public LocalDateTime getAssignedAt() {
         return assignedAt;
     }
+
     public void setAssignedAt(LocalDateTime assignedAt) {
         this.assignedAt = assignedAt;
     }

@@ -1,0 +1,19 @@
+.dashboard-loading {
+  padding: 20px;
+  text-align: center;
+}
+
+.dashboard-error {
+  color: red;
+  padding: 20px;
+}
+
+.user-dashboard {
+  padding: 20px;
+}
+
+.stat-card {
+  padding: 15px;
+  border: 1px solid #ddd;
+  margin: 10px;
+}

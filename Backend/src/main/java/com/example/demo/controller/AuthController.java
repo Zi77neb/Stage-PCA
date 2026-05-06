@@ -7,26 +7,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.LoginRequest;
+import com.example.demo.exception.UnauthorizedException;
 import com.example.demo.model.entity.User;
 import com.example.demo.security.CurrentUserService;
 import com.example.demo.service.interfaces.AuthService;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     @Autowired
-private CurrentUserService currentUserService;
+    private CurrentUserService currentUserService;
+
     @Autowired
     private AuthService authService;
-@PostMapping("/login")
-public User login(@RequestBody LoginRequest request) {
 
-    User user = authService.login(
-        request.getEmail(), // 🔥 EMAIL
-        request.getPassword()
-    );
+    @PostMapping("/login")
+    public User login(@RequestBody LoginRequest request) {
 
-    currentUserService.setUser(user);
+        if (request.getEmail() == null || request.getPassword() == null) {
+            throw new UnauthorizedException("Email and password are required");
+        }
 
-    return user;
-}
+        User user = authService.login(
+                request.getEmail(),
+                request.getPassword()
+        );
+
+        currentUserService.setUser(user);
+
+        return user;
+    }
 }

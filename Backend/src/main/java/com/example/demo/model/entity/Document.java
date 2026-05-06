@@ -1,8 +1,15 @@
 package com.example.demo.model.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "documents")
@@ -15,22 +22,14 @@ public class Document {
     private String fileName;
     private String filePath;
 
-    @ManyToOne
-    @JoinColumn(name = "banque_id")
-    private Banque banque;
+    // ❌ supprimé : banque redondante (via Etat → Domaine → Banque)
 
-    @ManyToOne
-    @JoinColumn(name = "domaine_id")
-    private Domaine domaine;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "etat_id", nullable = false)
+    private Etat etat;
 
-    @ManyToOne
-    @JoinColumn(name = "code_id")
-    private Code code;
-
-    private LocalDateTime dateDocument;
+    private LocalDate dateDocument;
     private LocalDateTime uploadedAt;
-
-    // GETTERS / SETTERS CORRECTS
 
     public Long getId() {
         return id;
@@ -52,35 +51,19 @@ public class Document {
         this.filePath = filePath;
     }
 
-    public Banque getBanque() {
-        return banque;
+    public Etat getEtat() {
+        return etat;
     }
 
-    public void setBanque(Banque banque) {
-        this.banque = banque;
+    public void setEtat(Etat etat) {
+        this.etat = etat;
     }
 
-    public Domaine getDomaine() {
-        return domaine;
-    }
-
-    public void setDomaine(Domaine domaine) {
-        this.domaine = domaine;
-    }
-
-    public Code getCode() {
-        return code;
-    }
-
-    public void setCode(Code code) {
-        this.code = code;
-    }
-
-    public LocalDateTime getDateDocument() {
+    public LocalDate getDateDocument() {
         return dateDocument;
     }
 
-    public void setDateDocument(LocalDateTime dateDocument) {
+    public void setDateDocument(LocalDate dateDocument) {
         this.dateDocument = dateDocument;
     }
 

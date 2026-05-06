@@ -1,23 +1,29 @@
 package com.example.demo.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.dto.UserDocumentDTO;
+import com.example.demo.exception.NotFoundException;
+import com.example.demo.exception.UnauthorizedException;
 import com.example.demo.model.entity.DocumentUser;
 import com.example.demo.repository.DocumentUserRepository;
 import com.example.demo.security.CurrentUserService;
-import com.example.demo.dto.UserDocumentDTO;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Comparator;
+import com.example.demo.service.interfaces.TraceService;
 
 @RestController
 @RequestMapping("/api/user")
@@ -29,69 +35,64 @@ public class UserDocumentController {
     @Autowired
     private CurrentUserService currentUserService;
 
-    // 📄 Voir mes documents (DTO + TRI 🔥)
+    @Autowired
+    private TraceService traceService;
+
     @GetMapping("/documents")
     public List<UserDocumentDTO> getMyDocuments() {
 
         Long userId = currentUserService.getCurrentUser().getId();
+        System.out.println("USER CONNECTÉ ID = " + userId);
 
         List<DocumentUser> list = documentUserRepository.findByUserId(userId);
 
-return list.stream()
+        return list.stream()
+                .sorted(Comparator.comparing(
+                        (DocumentUser du) -> du.getDocument().getDateDocument()
+                ).reversed())
+                .map(du -> {
 
-        .sorted(Comparator.comparing(
-                (DocumentUser du) -> du.getDocument().getDateDocument()
-        ).reversed())
+                    String label = du.getDocument().getEtat().getNom();
+                    String domaine = du.getDocument().getEtat().getDomaine().getName();
 
-        .map((DocumentUser du) -> {
+                    String title = label + " - " + domaine;
 
-                    String label = du.getDocument().getCode().getLabel();
-                    String banque = du.getDocument().getBanque().getName();
-
-                    String title = label + " - " + banque;
+                    boolean isOld = du.getDocument().getDateDocument()
+                            .isBefore(LocalDate.now().minusDays(30));
 
                     return new UserDocumentDTO(
                             du.getId(),
                             title,
-                            du.getDocument().getDateDocument(),
-                            du.isViewed()
+                            du.getDocument().getDateDocument().atStartOfDay(),
+                            du.isViewed(),
+                            du.getViewedAt(),
+                            isOld
                     );
 
-                }).toList();
+                }).collect(java.util.stream.Collectors.toList());
     }
 
-    // 👁️ Voir PDF (marque comme consulté)
     @GetMapping("/documents/{id}/view")
     public ResponseEntity<Resource> viewDocument(@PathVariable Long id) throws IOException {
 
         DocumentUser du = documentUserRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("DocumentUser not found"));
+                .orElseThrow(() -> new NotFoundException("Document not found"));
 
-        // 🔐 sécurité
         Long userId = currentUserService.getCurrentUser().getId();
         if (!du.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Access denied");
+            throw new UnauthorizedException("Access denied");
         }
 
-        // 🔍 vérifications
-        if (du.getDocument() == null) {
-            throw new RuntimeException("Document is NULL");
-        }
-
-        String filePath = du.getDocument().getFilePath();
-        if (filePath == null) {
-            throw new RuntimeException("File path is NULL");
-        }
-
-        File file = new File(filePath);
+        File file = new File(du.getDocument().getFilePath());
         if (!file.exists()) {
-            throw new RuntimeException("File not found: " + filePath);
+            throw new NotFoundException("File not found");
         }
 
-        // 🔥 marquer comme vu
         du.setViewed(true);
         du.setViewedAt(LocalDateTime.now());
         documentUserRepository.save(du);
+
+        traceService.log(du.getUser(), du.getDocument(), "VIEW");
 
         Resource resource = new UrlResource(file.toURI());
 
@@ -101,20 +102,24 @@ return list.stream()
                 .body(resource);
     }
 
-    // ⬇️ Télécharger PDF
     @GetMapping("/documents/{id}/download")
     public ResponseEntity<Resource> downloadDocument(@PathVariable Long id) throws IOException {
 
         DocumentUser du = documentUserRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new NotFoundException("Document not found"));
 
-        // 🔐 sécurité
         Long userId = currentUserService.getCurrentUser().getId();
         if (!du.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Access denied");
+            throw new UnauthorizedException("Access denied");
         }
 
         File file = new File(du.getDocument().getFilePath());
+        if (!file.exists()) {
+            throw new NotFoundException("File not found");
+        }
+
+        traceService.log(du.getUser(), du.getDocument(), "DOWNLOAD");
+
         Resource resource = new UrlResource(file.toURI());
 
         return ResponseEntity.ok()

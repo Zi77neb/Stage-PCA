@@ -1,13 +1,14 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.entity.Trace;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.example.demo.model.entity.Trace;
 
 public interface TraceRepository extends JpaRepository<Trace, Long> {
 
-    List<Trace> findByUserId(Long userId);
+    List<Trace> findByUser_Id(Long userId);
 
-    List<Trace> findByDocumentId(Long documentId);
+    List<Trace> findByDocument_Id(Long documentId);
 }

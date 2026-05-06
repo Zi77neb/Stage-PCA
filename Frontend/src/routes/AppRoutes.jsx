@@ -5,11 +5,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageUsers from "../pages/admin/ManageUsers";
-import ManageCodes from "../pages/admin/ManageCodes";
+import ManageEtats from "../pages/admin/ManageEtats";
 import ManageDomaines from "../pages/admin/ManageDomaines";
 import ManageBanques from "../pages/admin/ManageBanque";
 
 import UserDashboard from "../pages/user/UserDashboard";
+import UserDocuments from "../pages/user/UserDocuments";
 
 import Layout from "../components/layout/Layout";
 
@@ -48,26 +49,57 @@ export default function AppRoutes() {
             />
 
             <Route
-              path="/codes"
+              path="/etats"
               element={
                 <Layout>
-                  <ManageCodes />
+                  <ManageEtats />
                 </Layout>
               }
             />
+
             <Route
-  path="/banques"
-  element={
-    <Layout>
-      <ManageBanques />
-    </Layout>
-  }
-/>
+              path="/banques"
+              element={
+                <Layout>
+                  <ManageBanques />
+                </Layout>
+              }
+            />
+
             <Route
               path="/domaines"
               element={
                 <Layout>
                   <ManageDomaines />
+                </Layout>
+              }
+            />
+
+            {/* 📄 DOCUMENTS ADMIN */}
+            <Route
+              path="/documents-upload"
+              element={
+                <Layout>
+                  <div>Upload Documents (à créer)</div>
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/documents-list"
+              element={
+                <Layout>
+                  <div>Liste Documents (à créer)</div>
+                </Layout>
+              }
+            />
+
+            {/* 📊 TRACABILITE */}
+            <Route
+              path="/traces"
+              element={
+                <Layout>
+                  <div>Traçabilité (à créer)</div>
                 </Layout>
               }
             />
@@ -82,6 +114,15 @@ export default function AppRoutes() {
               element={
                 <Layout>
                   <UserDashboard />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/my-documents"
+              element={
+                <Layout>
+                  <UserDocuments />
                 </Layout>
               }
             />
