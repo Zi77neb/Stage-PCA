@@ -1,0 +1,226 @@
+.manage-docs-container {
+  width: 100%;
+  padding: 28px 32px;
+  font-family: 'Georgia', serif;
+  background: linear-gradient(180deg, #fffaf6 0%, #fff5ef 100%);
+  min-height: 100vh;
+}
+
+/* HEADER STYLE UNIFIÉ */
+.manage-docs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #fde8d8;
+}
+
+.manage-docs-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #3D3D3D;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.manage-docs-title::before {
+  content: '';
+  width: 5px;
+  height: 28px;
+  background: linear-gradient(180deg, #f0a876, #E8722A);
+  border-radius: 4px;
+}
+
+.manage-docs-subtitle {
+  color: #b05a20;
+  font-size: 14px;
+  margin: 5px 0 0 15px;
+  font-style: italic;
+}
+
+.manage-docs-header-badge {
+  background: linear-gradient(135deg, #fde8d8, #fff5ef);
+  border: 1px solid #f5c4a0;
+  color: #E8722A;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* TOOLBAR */
+.manage-docs-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  padding: 15px 25px;
+  border-radius: 12px;
+  border: 1.5px solid #fde8d8;
+  box-shadow: 0 2px 8px rgba(232, 114, 42, 0.05);
+}
+
+.filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #E8722A;
+  text-transform: uppercase;
+  margin-right: 10px;
+}
+
+.manage-docs-select {
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1.5px solid #fbd5b8;
+  background: #fff8f4;
+  font-family: 'Georgia', serif;
+  color: #3D3D3D;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.manage-docs-select:focus {
+  border-color: #E8722A;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(232, 114, 42, 0.1);
+}
+
+.btn-refresh-docs {
+  background: linear-gradient(135deg, #3D3D3D, #5a5a5a);
+  color: #fde8d8;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Georgia', serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.25s;
+}
+
+.btn-refresh-docs:hover {
+  background: linear-gradient(135deg, #E8722A, #f0a876);
+  transform: translateY(-1px);
+}
+
+/* TABLE CARD */
+.manage-docs-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 4px 24px rgba(232, 114, 42, 0.08);
+  border: 1px solid #fde8d8;
+  position: relative;
+  overflow: hidden;
+}
+
+.manage-docs-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #E8722A, #f0a876, #E8722A);
+}
+
+.manage-docs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.manage-docs-table thead th {
+  background: linear-gradient(135deg, #3D3D3D, #5a5a5a);
+  color: #f0a876;
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.manage-docs-table tbody tr:hover {
+  background: linear-gradient(135deg, #fff5ef, #fffaf7);
+}
+
+.manage-docs-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #fff0e8;
+  color: #2a2a2a;
+  vertical-align: middle;
+}
+
+/* BOUTONS D'ACTION SPECIFIQUES */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-action-view, .btn-action-download {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 16px;
+}
+
+.btn-action-view {
+  background: transparent;
+  border: 1.5px solid #E8722A;
+  color: #E8722A;
+}
+
+.btn-action-view:hover {
+  background: #E8722A;
+  color: white;
+  transform: scale(1.1);
+}
+
+.btn-action-download {
+  background: transparent;
+  border: 1.5px solid #16a34a;
+  color: #16a34a;
+}
+
+.btn-action-download:hover {
+  background: #16a34a;
+  color: white;
+  transform: scale(1.1);
+}
+
+.text-center { text-align: center; }
+
+/* REUTILISATION CLASSES THEME */
+.etat-code {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3D3D3D;
+  background: #fde8d8;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.loading-icon {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 10px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

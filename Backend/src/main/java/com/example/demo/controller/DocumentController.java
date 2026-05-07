@@ -2,23 +2,23 @@ package com.example.demo.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.model.entity.Document;
-import com.example.demo.model.entity.Etat;
-import com.example.demo.service.interfaces.DocumentAssignmentService;
 import com.example.demo.service.interfaces.DocumentService;
-import com.example.demo.service.interfaces.EtatService;
 
 @RestController
 @RequestMapping("/api/documents")
@@ -27,61 +27,69 @@ public class DocumentController {
     @Autowired
     private DocumentService documentService;
 
-    @Autowired
-    private EtatService etatService;
+    /**
+     * GET /api/documents - Admin consultation de tous les documents
+     */
+    @GetMapping
+    public List<Document> getAllDocuments() {
+        return documentService.getAll();
+    }
 
-    @Autowired
-    private DocumentAssignmentService documentAssignmentService;
+    /**
+     * 🔥 ADMIN VIEW (sans restriction utilisateur)
+     */
+    @GetMapping("/admin/{id}/view")
+    public ResponseEntity<Resource> viewDocumentAdmin(@PathVariable Long id) throws IOException {
 
-    @PostMapping("/upload")
-    public Document upload(@RequestParam("file") MultipartFile file) throws IOException {
+        Document doc = documentService.getById(id);
 
-        if (file.isEmpty()) {
-            throw new RuntimeException("Fichier vide");
+        File file = new File(doc.getFilePath());
+        if (!file.exists()) {
+            throw new NotFoundException("File not found");
         }
 
-        String uploadDir = System.getProperty("user.dir") + "/uploads/documents/";
-        File dir = new File(uploadDir);
+        Path path = file.toPath();
+        String contentType = Files.probeContentType(path);
 
-        if (!dir.exists()) {
-            dir.mkdirs();
+        if (contentType == null) {
+            contentType = "application/octet-stream";
         }
 
-        String fileName = file.getOriginalFilename();
-        String filePath = uploadDir + fileName;
+        Resource resource = new UrlResource(file.toURI());
 
-        file.transferTo(new File(filePath));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + file.getName() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .body(resource);
+    }
 
-        String nameWithoutExt = fileName.replace(".pdf", "");
-        String[] parts = nameWithoutExt.split("-");
+    /**
+     * 🔥 ADMIN DOWNLOAD
+     */
+    @GetMapping("/admin/{id}/download")
+    public ResponseEntity<Resource> downloadDocumentAdmin(@PathVariable Long id) throws IOException {
 
-        if (parts.length < 5) {
-            throw new RuntimeException("Nom de fichier invalide");
+        Document doc = documentService.getById(id);
+
+        File file = new File(doc.getFilePath());
+        if (!file.exists()) {
+            throw new NotFoundException("File not found");
         }
 
-        String codeValue = parts[0];
-        String dateStr = parts[2] + "-" + parts[3] + "-" + parts[4];
+        Path path = file.toPath();
+        String contentType = Files.probeContentType(path);
 
-        LocalDate dateDocument = LocalDate
-                .parse(dateStr, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-
-        Etat etat = etatService.getByCode(codeValue);
-
-        if (etat == null) {
-            throw new NotFoundException("Etat non trouvé: " + codeValue);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
         }
 
-        Document doc = new Document();
-        doc.setFileName(fileName);
-        doc.setFilePath(filePath);
-        doc.setEtat(etat);
-        doc.setDateDocument(dateDocument);
-        doc.setUploadedAt(LocalDateTime.now());
+        Resource resource = new UrlResource(file.toURI());
 
-        Document saved = documentService.save(doc);
-
-        documentAssignmentService.assignUsers(saved);
-
-        return saved;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + file.getName() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
+                .body(resource);
     }
 }

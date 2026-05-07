@@ -8,11 +8,13 @@ import ManageUsers from "../pages/admin/ManageUsers";
 import ManageEtats from "../pages/admin/ManageEtats";
 import ManageDomaines from "../pages/admin/ManageDomaines";
 import ManageBanques from "../pages/admin/ManageBanque";
+import ManageTraces from "../pages/admin/ManageTraces"; // 🔥 AJOUT
 
 import UserDashboard from "../pages/user/UserDashboard";
 import UserDocuments from "../pages/user/UserDocuments";
 
 import Layout from "../components/layout/Layout";
+import ManageDocuments from "../pages/admin/ManageDocuments"; // 🔥 AJOUT
 
 export default function AppRoutes() {
   const { user } = useContext(AuthContext);
@@ -75,21 +77,13 @@ export default function AppRoutes() {
               }
             />
 
-            {/* 📄 DOCUMENTS ADMIN */}
-            <Route
-              path="/documents-upload"
-              element={
-                <Layout>
-                  <div>Upload Documents (à créer)</div>
-                </Layout>
-              }
-            />
+           
 
             <Route
               path="/documents-list"
               element={
                 <Layout>
-                  <div>Liste Documents (à créer)</div>
+                  <ManageDocuments />
                 </Layout>
               }
             />
@@ -99,7 +93,7 @@ export default function AppRoutes() {
               path="/traces"
               element={
                 <Layout>
-                  <div>Traçabilité (à créer)</div>
+                  <ManageTraces /> {/* 🔥 CORRECTION */}
                 </Layout>
               }
             />

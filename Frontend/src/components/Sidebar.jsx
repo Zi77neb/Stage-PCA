@@ -15,7 +15,7 @@ export default function Sidebar() {
     { to: "/etats", label: "États", adminOnly: true },
 
     // DOCUMENTS
-    { to: "/documents-upload", label: "Upload Documents", adminOnly: true },
+    
     { to: "/documents-list", label: "Tous les Documents", adminOnly: true },
 
     // TRACABILITE

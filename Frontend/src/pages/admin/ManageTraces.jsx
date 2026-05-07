@@ -1,138 +1,158 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
+import "../../styles/ManageTraces.css";
 
 export default function ManageTraces() {
-
-  const [traces, setTraces] = useState([]);
-
-  const [users, setUsers] = useState([]);
-  const [documents, setDocuments] = useState([]);
-
-  const [filters, setFilters] = useState({
-    userId: "",
-    documentId: ""
-  });
-
+  const [grouped, setGrouped] = useState([]);
+  const [selectedDoc, setSelectedDoc] = useState(null);
   const [error, setError] = useState(null);
 
-  const getErrorMessage = (err) => {
-    return (
-      err?.response?.data?.message ||
-      err?.response?.data?.error ||
-      err.message ||
-      "Erreur serveur"
-    );
-  };
-
-  const normalize = (data) => {
-    if (Array.isArray(data)) return data;
-    if (Array.isArray(data?.content)) return data.content;
-    if (Array.isArray(data?.data)) return data.data;
-    return [];
-  };
-
-  const loadData = async () => {
+  const loadTraces = async () => {
     try {
-      const [tRes, uRes, dRes] = await Promise.all([
-        API.get("/admin/traces"),
-        API.get("/admin/users"),
-        API.get("/admin/documents")
-      ]);
-
-      setTraces(normalize(tRes.data));
-      setUsers(normalize(uRes.data));
-      setDocuments(normalize(dRes.data));
-
+      const res = await API.get("/admin/traces");
+      groupData(res.data);
       setError(null);
-
     } catch (err) {
-      setError(getErrorMessage(err));
+      setError("Impossible de charger les traces d'activité.");
     }
   };
 
   useEffect(() => {
-    loadData();
+    loadTraces();
   }, []);
 
-  const filteredTraces = traces.filter(t => {
-    return (
-      (!filters.userId || t.userId === Number(filters.userId)) &&
-      (!filters.documentId || t.documentId === Number(filters.documentId))
-    );
-  });
+  const groupData = (data) => {
+    const map = {};
+    data.forEach(t => {
+      const docId = t.document?.id;
+      const userId = t.user?.id;
+      const action = t.action;
+
+      if (!map[docId]) {
+        map[docId] = {
+          documentId: docId,
+          fileName: t.document?.fileName || "Sans nom",
+          viewUsers: new Set(),
+          downloadUsers: new Set(),
+          users: new Set(),
+          detailsMap: {}
+        };
+      }
+
+      if (action === "VIEW") map[docId].viewUsers.add(userId);
+      if (action === "DOWNLOAD") map[docId].downloadUsers.add(userId);
+      map[docId].users.add(userId);
+
+      const key = `${userId}_${action}`;
+      if (!map[docId].detailsMap[key] || new Date(t.actionDate) > new Date(map[docId].detailsMap[key].actionDate)) {
+        map[docId].detailsMap[key] = t;
+      }
+    });
+
+    const result = Object.values(map).map(d => ({
+      ...d,
+      views: d.viewUsers.size,
+      downloads: d.downloadUsers.size,
+      usersCount: d.users.size,
+      details: Object.values(d.detailsMap)
+    }));
+
+    setGrouped(result);
+  };
 
   return (
-    <div>
-
-      <h2>📊 Traçabilité</h2>
-
-      {error && <p>{error}</p>}
-
-      <div>
-        <select
-          value={filters.userId}
-          onChange={(e) =>
-            setFilters({ ...filters, userId: e.target.value })
-          }
-        >
-          <option value="">Filtrer par user</option>
-          {users.map(u => (
-            <option key={u.id} value={u.id}>
-              {u.username}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filters.documentId}
-          onChange={(e) =>
-            setFilters({ ...filters, documentId: e.target.value })
-          }
-        >
-          <option value="">Filtrer par document</option>
-          {documents.map(d => (
-            <option key={d.id} value={d.id}>
-              {d.fileName}
-            </option>
-          ))}
-        </select>
+    <div className="traces-container">
+      {/* ===== HEADER ===== */}
+      <div className="traces-header">
+        <div>
+          <h2 className="traces-title">Suivi des Activités</h2>
+          <p className="traces-subtitle">Visualisez les interactions des utilisateurs avec les documents</p>
+        </div>
+        <div className="traces-header-badge">
+          📈 {grouped.length} document{grouped.length > 1 ? "s" : ""} tracés
+        </div>
       </div>
 
-      {filteredTraces.length === 0 ? (
-        <p>Aucune trace</p>
-      ) : (
-        <table>
+      {/* ===== ERROR ===== */}
+      {error && (
+        <div className="traces-error-box">
+          <span>⚠️</span> {error}
+          <button className="error-close" onClick={() => setError(null)}>✕</button>
+        </div>
+      )}
+
+      {/* ===== TABLE CARD ===== */}
+      <div className="traces-table-card">
+        <h3 className="traces-table-title">Récapitulatif par document</h3>
+
+        <table className="traces-table">
           <thead>
             <tr>
-              <th>User</th>
               <th>Document</th>
+              <th>👁️ Consultation</th>
+              <th>⬇️ Téléchargement</th>
+              <th>👥 Total Unique</th>
               <th>Action</th>
-              <th>Date</th>
             </tr>
           </thead>
-
           <tbody>
-            {filteredTraces.map((t) => (
-              <tr key={t.id}>
+            {grouped.map(doc => (
+              <tr key={doc.documentId}>
+                <td><span className="doc-filename">{doc.fileName}</span></td>
+                <td><span className="stats-badge views">{doc.views} users</span></td>
+                <td><span className="stats-badge downloads">{doc.downloads} users</span></td>
+                <td><span className="domaine-badge">👥 {doc.usersCount}</span></td>
                 <td>
-                  {users.find(u => u.id === t.userId)?.username || t.userId}
-                </td>
-                <td>
-                  {documents.find(d => d.id === t.documentId)?.fileName || t.documentId}
-                </td>
-                <td>{t.action}</td>
-                <td>
-                  {t.actionDate
-                    ? new Date(t.actionDate).toLocaleString()
-                    : "-"
-                  }
+                  <button className="btn-edit" onClick={() => setSelectedDoc(doc)}>
+                    🔍 Détails
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
+      </div>
 
+      {/* ===== MODAL ===== */}
+      {selectedDoc && (
+        <div className="modal-overlay" onClick={() => setSelectedDoc(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">📄 {selectedDoc.fileName}</h3>
+              <button className="modal-close" onClick={() => setSelectedDoc(null)}>✕</button>
+            </div>
+
+            <div className="modal-body">
+              <table className="traces-table">
+                <thead>
+                  <tr>
+                    <th>Utilisateur</th>
+                    <th>Action</th>
+                    <th>Dernière activité</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedDoc.details.map((t, idx) => (
+                    <tr key={idx}>
+                      <td><span className="etat-nom">{t.user?.username}</span></td>
+                      <td>
+                        <span className={`frequence-badge ${t.action === 'VIEW' ? 'view-bg' : 'down-bg'}`}>
+                          {t.action === "VIEW" ? "👁️ Lecture" : "⬇️ Téléchargement"}
+                        </span>
+                      </td>
+                      <td><span className="etat-description">{new Date(t.actionDate).toLocaleString()}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-confirm" onClick={() => setSelectedDoc(null)}>Fermer</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,29 +1,16 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
+import "../../styles/ManageDocument.css";
 
 export default function ManageDocuments() {
-
   const [documents, setDocuments] = useState([]);
-
-  const [banques, setBanques] = useState([]);
-  const [domaines, setDomaines] = useState([]);
   const [etats, setEtats] = useState([]);
-
-  const [filters, setFilters] = useState({
-    banqueId: "",
-    domaineId: "",
-    etatId: ""
-  });
-
+  const [filters, setFilters] = useState({ etatId: "" });
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const getErrorMessage = (err) => {
-    return (
-      err?.response?.data?.message ||
-      err?.response?.data?.error ||
-      err.message ||
-      "Erreur serveur"
-    );
+    return err?.response?.data?.message || err?.response?.data?.error || err.message || "Erreur serveur";
   };
 
   const normalize = (data) => {
@@ -35,22 +22,18 @@ export default function ManageDocuments() {
 
   const loadData = async () => {
     try {
-      const [docRes, bRes, dRes, eRes] = await Promise.all([
-        API.get("/admin/documents"),
-        API.get("/admin/banques"),
-        API.get("/admin/domaines"),
+      setLoading(true);
+      const [docRes, eRes] = await Promise.all([
+        API.get("/documents"),
         API.get("/admin/etats")
       ]);
-
       setDocuments(normalize(docRes.data));
-      setBanques(normalize(bRes.data));
-      setDomaines(normalize(dRes.data));
       setEtats(normalize(eRes.data));
-
       setError(null);
-
     } catch (err) {
       setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,91 +42,125 @@ export default function ManageDocuments() {
   }, []);
 
   const filteredDocuments = documents.filter(d => {
-    return (
-      (!filters.banqueId || d.banque?.id === Number(filters.banqueId)) &&
-      (!filters.domaineId || d.domaine?.id === Number(filters.domaineId)) &&
-      (!filters.etatId || d.etat?.id === Number(filters.etatId))
-    );
+    return (!filters.etatId || d.etat?.id === Number(filters.etatId));
   });
 
+  const handleViewDocument = (doc) => {
+    window.open(`http://localhost:8080/api/documents/admin/${doc.id}/view`, "_blank");
+  };
+
+  const handleDownloadDocument = (doc) => {
+    window.open(`http://localhost:8080/api/documents/admin/${doc.id}/download`, "_blank");
+  };
+
   return (
-    <div>
-
-      <h2>📄 Documents</h2>
-
-      {error && <p>{error}</p>}
-
-      <div>
-        <select
-          value={filters.banqueId}
-          onChange={(e) =>
-            setFilters({ ...filters, banqueId: e.target.value })
-          }
-        >
-          <option value="">Banque</option>
-          {banques.map(b => (
-            <option key={b.id} value={b.id}>{b.name}</option>
-          ))}
-        </select>
-
-        <select
-          value={filters.domaineId}
-          onChange={(e) =>
-            setFilters({ ...filters, domaineId: e.target.value })
-          }
-        >
-          <option value="">Domaine</option>
-          {domaines.map(d => (
-            <option key={d.id} value={d.id}>{d.name}</option>
-          ))}
-        </select>
-
-        <select
-          value={filters.etatId}
-          onChange={(e) =>
-            setFilters({ ...filters, etatId: e.target.value })
-          }
-        >
-          <option value="">État</option>
-          {etats.map(e => (
-            <option key={e.id} value={e.id}>{e.nom}</option>
-          ))}
-        </select>
+    <div className="manage-docs-container">
+      {/* ===== HEADER ===== */}
+      <div className="manage-docs-header">
+        <div>
+          <h2 className="manage-docs-title">Archives des Documents</h2>
+          <p className="manage-docs-subtitle">
+            Visualisation et filtrage de l'ensemble des fichiers du système
+          </p>
+        </div>
+        <div className="manage-docs-header-badge">
+          📁 {filteredDocuments.length} Fichier{filteredDocuments.length > 1 ? "s" : ""}
+        </div>
       </div>
 
-      {filteredDocuments.length === 0 ? (
-        <p>Aucun document</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Fichier</th>
-              <th>Banque</th>
-              <th>Domaine</th>
-              <th>État</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredDocuments.map((d) => (
-              <tr key={d.id}>
-                <td>{d.fileName}</td>
-                <td>{d.banque?.name}</td>
-                <td>{d.domaine?.name}</td>
-                <td>{d.etat?.nom}</td>
-                <td>
-                  {d.dateDocument
-                    ? new Date(d.dateDocument).toLocaleDateString()
-                    : "-"
-                  }
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* ===== ERROR ===== */}
+      {error && (
+        <div className="etats-error-box">
+          <span>⚠️</span> {error}
+          <button className="error-close" onClick={() => setError(null)}>✕</button>
+        </div>
       )}
 
+      {/* ===== TOOLBAR ===== */}
+      <div className="manage-docs-toolbar">
+        <div className="filter-wrapper">
+          <label className="filter-label">Filtrer par État :</label>
+          <select
+            className="manage-docs-select"
+            value={filters.etatId}
+            onChange={(e) => setFilters({ ...filters, etatId: e.target.value })}
+          >
+            <option value="">Tous les États</option>
+            {etats.map(e => (
+              <option key={e.id} value={e.id}>📋 {e.nom}</option>
+            ))}
+          </select>
+        </div>
+
+        <button className="btn-refresh-docs" onClick={loadData}>
+          <span>🔄</span> Actualiser la liste
+        </button>
+      </div>
+
+      {/* ===== TABLE CARD ===== */}
+      <div className="manage-docs-card">
+        <h3 className="etats-table-title">Registre des fichiers archivés</h3>
+
+        {loading ? (
+          <div className="etats-empty">
+            <span className="loading-icon">⏳</span>
+            <p>Chargement des documents...</p>
+          </div>
+        ) : filteredDocuments.length === 0 ? (
+          <div className="etats-empty">
+            <span>📂</span>
+            <p>Aucun document ne correspond à ce filtre</p>
+          </div>
+        ) : (
+          <table className="manage-docs-table">
+            <thead>
+              <tr>
+                <th>Nom du Fichier</th>
+                <th>Type / État</th>
+                <th>Domaine</th>
+                <th>Date d'import</th>
+                <th className="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredDocuments.map((d) => (
+                <tr key={d.id}>
+                  <td className="doc-name-cell">
+                    <span className="etat-nom">{d.fileName}</span>
+                  </td>
+                  <td>
+                    <span className="frequence-badge">📋 {d.etat?.nom || "Non classé"}</span>
+                  </td>
+                  <td>
+                    <span className="domaine-badge">🌐 {d.etat?.domaine?.name || "N/A"}</span>
+                  </td>
+                  <td>
+                    <span className="etat-code">{new Date(d.dateDocument).toLocaleDateString()}</span>
+                  </td>
+                  <td className="text-center">
+                    <div className="action-buttons">
+                      <button
+                        className="btn-action-view"
+                        onClick={() => handleViewDocument(d)}
+                        title="Consulter"
+                      >
+                        👁️
+                      </button>
+                      <button
+                        className="btn-action-download"
+                        onClick={() => handleDownloadDocument(d)}
+                        title="Télécharger"
+                      >
+                        ⬇️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

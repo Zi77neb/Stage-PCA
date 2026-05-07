@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -24,6 +26,7 @@ import com.example.demo.model.entity.DocumentUser;
 import com.example.demo.repository.DocumentUserRepository;
 import com.example.demo.security.CurrentUserService;
 import com.example.demo.service.interfaces.TraceService;
+
 
 @RestController
 @RequestMapping("/api/user")
@@ -69,7 +72,7 @@ public class UserDocumentController {
                             isOld
                     );
 
-                }).collect(java.util.stream.Collectors.toList());
+                }).toList();
     }
 
     @GetMapping("/documents/{id}/view")
@@ -94,11 +97,19 @@ public class UserDocumentController {
 
         traceService.log(du.getUser(), du.getDocument(), "VIEW");
 
+        Path path = file.toPath();
+        String contentType = Files.probeContentType(path);
+
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
         Resource resource = new UrlResource(file.toURI());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "inline; filename=\"" + file.getName() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
                 .body(resource);
     }
 
@@ -120,11 +131,19 @@ public class UserDocumentController {
 
         traceService.log(du.getUser(), du.getDocument(), "DOWNLOAD");
 
+        Path path = file.toPath();
+        String contentType = Files.probeContentType(path);
+
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
         Resource resource = new UrlResource(file.toURI());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + file.getName() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, contentType)
                 .body(resource);
     }
 }
