@@ -16,4 +16,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             Long domaineId,
             Long etatId
     );
+     List<User> findByDomaines_IdAndEtats_Id(
+            Long domaineId,
+            Long etatId
+    );
+    
 }

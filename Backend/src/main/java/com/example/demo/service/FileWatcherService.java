@@ -40,7 +40,6 @@ public class FileWatcherService {
         }
 
         File[] files = folder.listFiles();
-
         if (files == null) return;
 
         for (File file : files) {
@@ -57,41 +56,49 @@ public class FileWatcherService {
 
     private void processFile(File file) {
 
-    String fileName = file.getName();
+        String fileName = file.getName();
 
-    if (documentService.findByFileName(fileName).isPresent()) {
-        return;
+        // 🔥 éviter doublon
+        if (documentService.findByFileName(fileName).isPresent()) {
+            return;
+        }
+
+        try {
+            // 🔥 EXTENSION SAFE (pdf, excel, etc)
+            String nameWithoutExt = fileName.contains(".")
+                    ? fileName.substring(0, fileName.lastIndexOf("."))
+                    : fileName;
+
+            String[] parts = nameWithoutExt.split("-");
+
+            if (parts.length < 4) {
+                System.out.println("❌ mauvais format: " + fileName);
+                return;
+            }
+
+            String code = parts[0];
+            String dateStr = parts[1] + "-" + parts[2] + "-" + parts[3];
+
+            LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+
+            Etat etat = etatService.getByCode(code);
+
+            Document doc = new Document();
+            doc.setFileName(fileName);
+            doc.setFilePath(file.getAbsolutePath());
+            doc.setEtat(etat);
+            doc.setDateDocument(date);
+            doc.setUploadedAt(LocalDateTime.now());
+
+            Document saved = documentService.save(doc);
+
+            // 🔥 CRUCIAL
+            documentAssignmentService.assignUsers(saved);
+
+            System.out.println("✅ traité + assigné: " + fileName);
+
+        } catch (Exception e) {
+            System.out.println("❌ erreur parsing: " + fileName + " -> " + e.getMessage());
+        }
     }
-
-    try {
-        String nameWithoutExt = fileName.replace(".pdf", "");
-        String[] parts = nameWithoutExt.split("-");
-
-        if (parts.length < 4) return;
-
-        String code = parts[0];
-
-        String dateStr = parts[1] + "-" + parts[2] + "-" + parts[3];
-
-        LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-
-        Etat etat = etatService.getByCode(code);
-
-        Document doc = new Document();
-        doc.setFileName(fileName);
-        doc.setFilePath(file.getAbsolutePath());
-        doc.setEtat(etat);
-        doc.setDateDocument(date);
-        doc.setUploadedAt(LocalDateTime.now());
-
-        Document saved = documentService.save(doc);
-
-        documentAssignmentService.assignUsers(saved);
-
-        System.out.println("✅ traité: " + fileName);
-
-    } catch (Exception e) {
-        System.out.println("❌ erreur parsing: " + fileName + " -> " + e.getMessage());
-    }
-}
 }

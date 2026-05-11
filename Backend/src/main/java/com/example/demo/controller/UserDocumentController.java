@@ -27,7 +27,6 @@ import com.example.demo.repository.DocumentUserRepository;
 import com.example.demo.security.CurrentUserService;
 import com.example.demo.service.interfaces.TraceService;
 
-
 @RestController
 @RequestMapping("/api/user")
 public class UserDocumentController {
@@ -45,9 +44,8 @@ public class UserDocumentController {
     public List<UserDocumentDTO> getMyDocuments() {
 
         Long userId = currentUserService.getCurrentUser().getId();
-        System.out.println("USER CONNECTÉ ID = " + userId);
 
-        List<DocumentUser> list = documentUserRepository.findByUserId(userId);
+        List<DocumentUser> list = documentUserRepository.findByUser_Id(userId);
 
         return list.stream()
                 .sorted(Comparator.comparing(
@@ -55,17 +53,18 @@ public class UserDocumentController {
                 ).reversed())
                 .map(du -> {
 
-                    String label = du.getDocument().getEtat().getNom();
+                    String fileName = du.getDocument().getFileName();
+                    String etat = du.getDocument().getEtat().getNom();
                     String domaine = du.getDocument().getEtat().getDomaine().getName();
-
-                    String title = label + " - " + domaine;
 
                     boolean isOld = du.getDocument().getDateDocument()
                             .isBefore(LocalDate.now().minusDays(30));
 
                     return new UserDocumentDTO(
                             du.getId(),
-                            title,
+                            fileName,
+                            etat,
+                            domaine,
                             du.getDocument().getDateDocument().atStartOfDay(),
                             du.isViewed(),
                             du.getViewedAt(),
@@ -82,11 +81,13 @@ public class UserDocumentController {
                 .orElseThrow(() -> new NotFoundException("Document not found"));
 
         Long userId = currentUserService.getCurrentUser().getId();
+
         if (!du.getUser().getId().equals(userId)) {
             throw new UnauthorizedException("Access denied");
         }
 
         File file = new File(du.getDocument().getFilePath());
+
         if (!file.exists()) {
             throw new NotFoundException("File not found");
         }
@@ -120,11 +121,13 @@ public class UserDocumentController {
                 .orElseThrow(() -> new NotFoundException("Document not found"));
 
         Long userId = currentUserService.getCurrentUser().getId();
+
         if (!du.getUser().getId().equals(userId)) {
             throw new UnauthorizedException("Access denied");
         }
 
         File file = new File(du.getDocument().getFilePath());
+
         if (!file.exists()) {
             throw new NotFoundException("File not found");
         }

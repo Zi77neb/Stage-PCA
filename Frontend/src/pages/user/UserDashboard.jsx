@@ -63,16 +63,16 @@ export default function UserDashboard() {
 
   return (
     <div className="user-dashboard-container">
-      {/* HEADER */}
       <div className="dashboard-header">
         <div>
           <h1 className="dashboard-title">Mon Espace Client</h1>
           <p className="dashboard-subtitle">Gérez vos documents et suivez votre activité</p>
         </div>
-        <div className="dashboard-date">📅 {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+        <div className="dashboard-date">
+          📅 {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+        </div>
       </div>
 
-      {/* STATS GRID */}
       <div className="stats-grid">
         <div className="stat-card total">
           <div className="stat-icon total">📄</div>
@@ -99,7 +99,6 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {/* DOCUMENTS SECTION */}
       <div className="dashboard-section-card">
         <div className="section-header">
           <h3 className="section-title">📄 Derniers documents</h3>
@@ -118,17 +117,21 @@ export default function UserDashboard() {
             <table className="documents-table">
               <thead>
                 <tr>
-                  <th>Titre du document</th>
-                  <th>Date d'émission</th>
+                  <th>Fichier</th>
+                 
+                  <th>Date</th>
                   <th>Statut</th>
                   <th>Action</th>
                 </tr>
               </thead>
+
               <tbody>
                 {documents.slice(0, 5).map((doc) => (
                   <tr key={doc.id}>
-                    <td className="doc-title-cell">{doc.title}</td>
+                    <td>{doc.fileName}</td>
+                    
                     <td>{new Date(doc.date).toLocaleDateString()}</td>
+
                     <td>
                       {doc.viewed ? (
                         <span className="badge viewed">✔ Consulté</span>
@@ -136,6 +139,7 @@ export default function UserDashboard() {
                         <span className="badge new">🆕 Nouveau</span>
                       )}
                     </td>
+
                     <td>
                       <button
                         className="btn-view-doc"

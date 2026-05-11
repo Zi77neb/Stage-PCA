@@ -4,28 +4,42 @@ import java.time.LocalDateTime;
 
 public class UserDocumentDTO {
 
+    private final Long id;
+    private final String fileName;
+    private final String etat;
+    private final String domaine;
+    private final LocalDateTime date;
+    private final boolean viewed;
+    private final LocalDateTime viewedAt;
+    private final boolean old;
 
-    private Long id;
-    private final String title;
-    private LocalDateTime date;
-    private boolean viewed;
-    private LocalDateTime viewedAt;
-    private boolean old;
-
-    public UserDocumentDTO(Long id, String title, LocalDateTime date, boolean viewed) {
+    public UserDocumentDTO(Long id, String fileName, String etat, String domaine,
+                           LocalDateTime date, boolean viewed,
+                           LocalDateTime viewedAt, boolean old) {
         this.id = id;
-        this.title = title;
+        this.fileName = fileName;
+        this.etat = etat;
+        this.domaine = domaine;
         this.date = date;
         this.viewed = viewed;
+        this.viewedAt = viewedAt;
+        this.old = old;
     }
 
-    // getters
     public Long getId() {
         return id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getEtat() {
+        return etat;
+    }
+
+    public String getDomaine() {
+        return domaine;
     }
 
     public LocalDateTime getDate() {
@@ -35,40 +49,12 @@ public class UserDocumentDTO {
     public boolean isViewed() {
         return viewed;
     }
-    // setters
-    public void setId(Long id) {        
-        this.id = id;
-    }
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-    public void setViewed(boolean viewed) {
-        this.viewed = viewed;
-    }
-    public void markAsViewed() {
-        this.viewed = true;
-        this.date = LocalDateTime.now();
-    }
-    public void markAsUnviewed() {
-        this.viewed = false;
-        this.date = null;
-    }
-    public void toggleViewed() {
-        if (this.viewed) {
-            markAsUnviewed();
-        } else {
-            markAsViewed();
-        }
-    }
-    // 🔥 CONSTRUCTEUR COMPLET
-    public UserDocumentDTO(Long id, String title, LocalDateTime date,
-                           boolean viewed, LocalDateTime viewedAt, boolean old) {
-        this.id = id;
-        this.title = title;
-        this.date = date;
-        this.viewed = viewed;
-        this.viewedAt = viewedAt;
-        this.old = old;
+
+    public LocalDateTime getViewedAt() {
+        return viewedAt;
     }
 
+    public boolean isOld() {
+        return old;
+    }
 }

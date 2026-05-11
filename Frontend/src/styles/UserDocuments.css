@@ -134,10 +134,10 @@
 }
 
 .user-docs-table thead th {
-  background: #3D3D3D;
+background: #3D3D3D;
   color: #f0a876;
   padding: 14px 16px;
-  text-align: left;
+  text-align: center; /* Changé de left à center */
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -169,23 +169,27 @@
 .user-action-btns {
   display: flex;
   gap: 10px;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
 }
 
 .btn-user-view {
+  padding: 6px 12px;
   background: transparent;
   border: 1.5px solid #E8722A;
   color: #3D3D3D;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
+  border-radius: 6px;
   font-family: 'Georgia', serif;
   font-size: 12px;
-  transition: 0.2s;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.btn-user-view:hover { background: #fde8d8; }
+
+
+.btn-user-view:hover {  background: #E8722A;
+  color: white; }
 
 .btn-user-download {
   background: #3D3D3D;
@@ -200,10 +204,6 @@
   transition: 0.2s;
 }
 
-.btn-user-download:hover {
-  background: #E8722A;
-  border-color: #E8722A;
-  transform: translateY(-1px);
-}
+
 
 .text-right { text-align: right; }

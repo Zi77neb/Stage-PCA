@@ -4,9 +4,9 @@ import java.util.Set;
 
 public class DomaineResponse {
 
-    private Long id;
-    private String name;
-    private Set<String> banqueNames;
+    private final Long id;
+    private final String name;
+    private final Set<String> banqueNames;
 
     public DomaineResponse(Long id, String name, Set<String> banqueNames) {
         this.id = id;

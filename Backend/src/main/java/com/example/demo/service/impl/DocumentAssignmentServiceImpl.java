@@ -27,17 +27,16 @@ public class DocumentAssignmentServiceImpl implements DocumentAssignmentService 
     @Transactional
     public void assignUsers(Document document) {
 
-        if (document.getEtat() == null) {
-            throw new IllegalArgumentException("Document must have etat");
+        if (document.getEtat() == null || document.getEtat().getDomaine() == null) {
+            throw new IllegalArgumentException("Document must have etat and domaine");
         }
 
         Long domaineId = document.getEtat().getDomaine().getId();
         Long etatId = document.getEtat().getId();
 
-        List<User> users = userRepository.findAll().stream()
-        .filter(u -> u.getDomaines().stream().anyMatch(d -> d.getId().equals(domaineId)))
-        .filter(u -> u.getEtats().stream().anyMatch(e -> e.getId().equals(etatId)))
-        .toList();
+        // ✅ SAFE (plus de LazyInitializationException)
+        List<User> users = userRepository
+                .findByDomaines_IdAndEtats_Id(domaineId, etatId);
 
         for (User user : users) {
 
@@ -74,7 +73,7 @@ public class DocumentAssignmentServiceImpl implements DocumentAssignmentService 
     @Transactional
     public void reassignDocument(Document document) {
 
-        List<DocumentUser> existing = documentUserRepository.findByDocumentId(document.getId());
+        List<DocumentUser> existing = documentUserRepository.findByDocument_Id(document.getId());
         documentUserRepository.deleteAll(existing);
 
         assignUsers(document);

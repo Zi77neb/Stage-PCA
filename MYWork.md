@@ -21,10 +21,10 @@ Développer une application web full-stack (Spring Boot + React) pour gérer des
 - **Architecture:** Full-stack avec backend API REST et frontend SPA (Single Page Application)
 - **Framework backend:** Spring Boot 3.x avec Spring Data JPA
 - **Framework frontend:** React 18 avec Vite
-- **Base de données:** MySQL/PostgreSQL
+- **Base de données:** PostgreSQL
 - **Déploiement:** Local en développement (localhost:8080 backend, localhost:5173 frontend)
 
----
+ 
 
 ## 2. ARCHITECTURE GLOBALE
 
@@ -382,7 +382,7 @@ Frontend/
 │   │   │   └── Login.jsx
 │   │   ├── admin/
 │   │   │   ├── AdminDashboard.jsx
-│   │   │   ├── ManageEtats.jsx ← ✅ Complète avec modales
+│   │   │   ├── ManageEtats.jsx ← 
 │   │   │   ├── ManageBanques.jsx ← 
 │   │   │   ├── ManageDomaines.jsx ←
 │   │   │   └── ManageUsers.jsx ← 
@@ -505,7 +505,7 @@ Implémentation correcte attendue:
 5. Save: POST /api/admin/banques/{id}/etats avec validation
 ```
 
-#### **ManageDomaines.jsx** - ⚠️ À IMPLÉMENTER
+#### **ManageDomaines.jsx** - 
 
 Fonctionnalité attendue:
 ```jsx
@@ -521,7 +521,7 @@ Logique métier:
 - Modal: Checkbox États avec validation "déjà assigné ailleurs"
 ```
 
-#### **ManageUsers.jsx** - ⚠️ À CASCADER
+#### **ManageUsers.jsx** - 
 
 Fonctionnalité attendue (3-step modal cascade):
 
@@ -544,7 +544,7 @@ Final Form:
 - Save: POST /api/admin/users avec nested assignment
 ```
 
-#### **UserDashboard.jsx** - ⚠️ À IMPLÉMENTER
+#### **UserDashboard.jsx** - 
 
 Fonctionnalité attendue:
 ```jsx
@@ -1073,10 +1073,10 @@ ORDER BY d.dateDocument DESC;
 - Audit logging: DONE
 - **Pending:** Fix 4 identified bugs, add @EnableScheduling
 
-**Frontend:** ⚠️ 40% Complet
+**Frontend:** ⚠️ 60% Complet
 - Admin dashboards: PARTIALLY DONE (ManageEtats modal working, others need completion)
-- User dashboard: NOT YET STARTED
-- Document viewer: NOT YET STARTED
+- User dashboard: STARTED
+- Document viewer:  STARTED
 - Styling: PARTIALLY DONE
 
 **Database:** ✅ 100% Complete

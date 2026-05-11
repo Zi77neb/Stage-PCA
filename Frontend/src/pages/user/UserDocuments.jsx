@@ -8,7 +8,8 @@ export default function UserDocuments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [searchTerm, setSearchTerm] = useState("");
+  // Remplacement du searchTerm par filterDate
+  const [filterDate, setFilterDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
   const getErrorMessage = (err) => {
@@ -35,42 +36,81 @@ export default function UserDocuments() {
 
   useEffect(() => {
     let result = documents;
-    if (searchTerm) {
-      result = result.filter((doc) =>
-        doc.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+
+    // Filtrage par date
+    if (filterDate) {
+      result = result.filter((doc) => {
+        // On compare la date du doc formatée avec la date sélectionnée formatée
+        const docDateFormatted = new Date(doc.date).toLocaleDateString();
+        const selectedDateFormatted = new Date(filterDate).toLocaleDateString();
+        return docDateFormatted === selectedDateFormatted;
+      });
     }
+
+    // Filtrage par statut
     if (filterStatus === "new") {
       result = result.filter((doc) => !doc.viewed);
     } else if (filterStatus === "viewed") {
       result = result.filter((doc) => doc.viewed);
     }
+
     setFilteredDocs(result);
-  }, [searchTerm, filterStatus, documents]);
+  }, [filterDate, filterStatus, documents]);
+
+  const openWithAuth = async (url, isDownload = false) => {
+    try {
+      const res = await API.get(url, { responseType: "blob" });
+      const contentType = res.headers["content-type"] || "application/octet-stream";
+      const blob = new Blob([res.data], { type: contentType });
+      const fileURL = window.URL.createObjectURL(blob);
+
+      if (isDownload) {
+        const link = document.createElement("a");
+        link.href = fileURL;
+        link.download = "document";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        window.open(fileURL, "_blank");
+      }
+    } catch (err) {
+      alert(getErrorMessage(err));
+    }
+  };
 
   return (
     <div className="user-docs-container">
-      {/* ===== HEADER ===== */}
       <div className="user-docs-header">
         <div>
           <h2 className="user-docs-title">Mes Documents</h2>
-          <p className="user-docs-subtitle">Consultez et téléchargez vos pièces officielles en toute sécurité</p>
+          <p className="user-docs-subtitle">
+            Consultez et téléchargez vos pièces officielles en toute sécurité
+          </p>
         </div>
         <div className="user-docs-header-badge">
           Vault: {filteredDocs.length} document{filteredDocs.length > 1 ? "s" : ""}
         </div>
       </div>
 
-      {/* ===== TOOLBAR ===== */}
       <div className="user-docs-toolbar">
+        {/* Barre de recherche remplacée par le filtre Date */}
         <div className="user-search-wrapper">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon">📅</span>
           <input
+            type="date"
             className="user-search-input"
-            placeholder="Rechercher par titre..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
           />
+          {filterDate && (
+            <button 
+              onClick={() => setFilterDate("")} 
+              style={{border: 'none', background: 'transparent', cursor: 'pointer', marginLeft: '-30px', marginRight: '10px'}}
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         <div className="filter-tabs-group">
@@ -97,39 +137,33 @@ export default function UserDocuments() {
 
       {error && (
         <div className="etats-error-box">
-          <span>⚠️</span> {error}
+          ⚠️ {error}
         </div>
       )}
 
-      {/* ===== TABLE CARD ===== */}
       <div className="user-docs-card">
-        <h3 className="etats-table-title">Votre coffre-fort numérique</h3>
+        <h3 className="etats-table-title">Vos Documents</h3>
 
         {loading ? (
-          <div className="etats-empty">
-            <span className="loading-icon">🔒</span>
-            <p>Accès au coffre-fort en cours...</p>
-          </div>
+          <div className="etats-empty">Chargement...</div>
         ) : filteredDocs.length === 0 ? (
-          <div className="etats-empty">
-            <span>🔍</span>
-            <p>Aucun document trouvé</p>
-          </div>
+          <div className="etats-empty">Aucun document trouvé pour cette sélection</div>
         ) : (
           <table className="user-docs-table">
             <thead>
               <tr>
-                <th>Titre du document</th>
-                <th>Date d'émission</th>
+                <th>Fichier</th>
+                <th>Date</th>
                 <th>Statut</th>
                 <th className="text-right">Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {filteredDocs.map((doc) => (
                 <tr key={doc.id}>
-                  <td><span className="etat-nom">{doc.title}</span></td>
-                  <td><span className="etat-code">{new Date(doc.date).toLocaleDateString()}</span></td>
+                  <td>{doc.fileName}</td>
+                  <td>{new Date(doc.date).toLocaleDateString()}</td>
                   <td>
                     {doc.viewed ? (
                       <span className="badge-status viewed">✔ Consulté</span>
@@ -139,17 +173,18 @@ export default function UserDocuments() {
                   </td>
                   <td className="text-right">
                     <div className="user-action-btns">
+                      
+<button
+  className="btn-view-doc"
+  onClick={() => navigate("/my-documents")} // Ou appelle une fonction de téléchargement sécurisée
+>
+  👁️ Consulter
+</button>
                       <button
-                        className="btn-user-view"
-                        onClick={() => window.open(`/api/user/documents/${doc.id}/view`, "_blank")}
+                        className="btn-view-doc"
+                        onClick={() => openWithAuth(`/user/documents/${doc.id}/download`, true)}
                       >
-                        👁 Voir
-                      </button>
-                      <button
-                        className="btn-user-download"
-                        onClick={() => window.open(`/api/user/documents/${doc.id}/download`, "_blank")}
-                      >
-                        ⬇ Télécharger
+                         Telecharger
                       </button>
                     </div>
                   </td>
