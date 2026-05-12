@@ -8,7 +8,7 @@ export default function UserDocuments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Remplacement du searchTerm par filterDate
+
   const [filterDate, setFilterDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -37,17 +37,17 @@ export default function UserDocuments() {
   useEffect(() => {
     let result = documents;
 
-    // Filtrage par date
+   
     if (filterDate) {
       result = result.filter((doc) => {
-        // On compare la date du doc formatée avec la date sélectionnée formatée
+        
         const docDateFormatted = new Date(doc.date).toLocaleDateString();
         const selectedDateFormatted = new Date(filterDate).toLocaleDateString();
         return docDateFormatted === selectedDateFormatted;
       });
     }
 
-    // Filtrage par statut
+    
     if (filterStatus === "new") {
       result = result.filter((doc) => !doc.viewed);
     } else if (filterStatus === "viewed") {
@@ -176,10 +176,11 @@ export default function UserDocuments() {
                       
 <button
   className="btn-view-doc"
-  onClick={() => navigate("/my-documents")} // Ou appelle une fonction de téléchargement sécurisée
+  onClick={() => openWithAuth(`/user/documents/${doc.id}/view`)}
 >
   👁️ Consulter
 </button>
+
                       <button
                         className="btn-view-doc"
                         onClick={() => openWithAuth(`/user/documents/${doc.id}/download`, true)}

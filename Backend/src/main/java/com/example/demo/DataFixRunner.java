@@ -12,7 +12,7 @@ import com.example.demo.service.interfaces.DocumentAssignmentService;
 import com.example.demo.service.interfaces.DocumentService;
 
 @Component
-@Profile("fix") // 🔥 s'exécute seulement si profile = fix
+@Profile("fix") 
 public class DataFixRunner implements CommandLineRunner {
 
     private final DocumentService documentService;

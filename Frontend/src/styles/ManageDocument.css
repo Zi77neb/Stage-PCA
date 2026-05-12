@@ -62,7 +62,7 @@
   padding: 15px 25px;
   border-radius: 12px;
   border: 1.5px solid #fde8d8;
-  box-shadow: 0 2px 8px rgba(232, 114, 42, 0.05);
+  
 }
 
 .filter-label {
@@ -79,7 +79,7 @@
   border: 1.5px solid #fbd5b8;
   background: #fff8f4;
   font-family: 'Georgia', serif;
-  color: #3D3D3D;
+  
   outline: none;
   cursor: pointer;
   transition: all 0.2s;
@@ -137,7 +137,7 @@
 }
 
 .manage-docs-table thead th {
-  background: linear-gradient(135deg, #3D3D3D, #5a5a5a);
+  background:#3D3D3D;
   color: #f0a876;
   padding: 14px 16px;
   text-align: left;
