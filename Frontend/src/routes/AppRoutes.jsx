@@ -3,130 +3,180 @@ import { AuthContext } from "../context/AuthContext";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "../pages/auth/Login";
+
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageUsers from "../pages/admin/ManageUsers";
 import ManageEtats from "../pages/admin/ManageEtats";
 import ManageDomaines from "../pages/admin/ManageDomaines";
 import ManageBanques from "../pages/admin/ManageBanque";
-import ManageTraces from "../pages/admin/ManageTraces"; // 🔥 AJOUT
+import ManageTraces from "../pages/admin/ManageTraces";
+import ManageDocuments from "../pages/admin/ManageDocuments";
 
 import UserDashboard from "../pages/user/UserDashboard";
 import UserDocuments from "../pages/user/UserDocuments";
 
 import Layout from "../components/layout/Layout";
-import ManageDocuments from "../pages/admin/ManageDocuments"; // 🔥 AJOUT
+
+import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 
 export default function AppRoutes() {
+
   const { user } = useContext(AuthContext);
 
   return (
     <BrowserRouter>
+
       <Routes>
 
         {/* 🔐 LOGIN */}
         <Route
           path="/"
-          element={!user ? <Login /> : <Navigate to="/dashboard" />}
+          element={
+            !user
+              ? <Login />
+              : <Navigate to="/dashboard" replace />
+          }
+        />
+
+        <Route
+          path="/login"
+          element={
+            !user
+              ? <Login />
+              : <Navigate to="/dashboard" replace />
+          }
         />
 
         {/* 👑 ADMIN */}
-        {user?.role === "ADMIN" && (
-          <>
-            <Route
-              path="/dashboard"
-              element={
-                <Layout>
-                  <AdminDashboard />
-                </Layout>
-              }
-            />
 
-            <Route
-              path="/users"
-              element={
-                <Layout>
-                  <ManageUsers />
-                </Layout>
-              }
-            />
+        <Route
+          path="/dashboard"
+          element={
 
-            <Route
-              path="/etats"
-              element={
-                <Layout>
-                  <ManageEtats />
-                </Layout>
-              }
-            />
+            <ProtectedRoute>
 
-            <Route
-              path="/banques"
-              element={
-                <Layout>
-                  <ManageBanques />
-                </Layout>
-              }
-            />
+              <Layout>
 
-            <Route
-              path="/domaines"
-              element={
-                <Layout>
-                  <ManageDomaines />
-                </Layout>
-              }
-            />
+                {user?.role === "ADMIN"
+                  ? <AdminDashboard />
+                  : <UserDashboard />}
 
-           
+              </Layout>
 
-            <Route
-              path="/documents-list"
-              element={
-                <Layout>
-                  <ManageDocuments />
-                </Layout>
-              }
-            />
+            </ProtectedRoute>
+          }
+        />
 
-            {/* 📊 TRACABILITE */}
-            <Route
-              path="/traces"
-              element={
-                <Layout>
-                  <ManageTraces /> {/* 🔥 CORRECTION */}
-                </Layout>
-              }
-            />
-          </>
-        )}
+        <Route
+          path="/users"
+          element={
+
+            <AdminRoute>
+
+              <Layout>
+                <ManageUsers />
+              </Layout>
+
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/etats"
+          element={
+
+            <AdminRoute>
+
+              <Layout>
+                <ManageEtats />
+              </Layout>
+
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/banques"
+          element={
+
+            <AdminRoute>
+
+              <Layout>
+                <ManageBanques />
+              </Layout>
+
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/domaines"
+          element={
+
+            <AdminRoute>
+
+              <Layout>
+                <ManageDomaines />
+              </Layout>
+
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/documents-list"
+          element={
+
+            <AdminRoute>
+
+              <Layout>
+                <ManageDocuments />
+              </Layout>
+
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/traces"
+          element={
+
+            <AdminRoute>
+
+              <Layout>
+                <ManageTraces />
+              </Layout>
+
+            </AdminRoute>
+          }
+        />
 
         {/* 👤 USER */}
-        {user?.role === "USER" && (
-          <>
-            <Route
-              path="/dashboard"
-              element={
-                <Layout>
-                  <UserDashboard />
-                </Layout>
-              }
-            />
 
-            <Route
-              path="/my-documents"
-              element={
-                <Layout>
-                  <UserDocuments />
-                </Layout>
-              }
-            />
-          </>
-        )}
+        <Route
+          path="/my-documents"
+          element={
 
-        {/* 🚫 fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
+            <ProtectedRoute>
+
+              <Layout>
+                <UserDocuments />
+              </Layout>
+
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 🚫 FALLBACK */}
+
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
 
       </Routes>
+
     </BrowserRouter>
   );
 }

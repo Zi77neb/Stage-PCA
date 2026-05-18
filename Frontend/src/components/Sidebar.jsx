@@ -2,7 +2,9 @@ import { Link, useLocation } from "react-router-dom";
 import "../styles/Sidebar.css";
 
 export default function Sidebar() {
+
   const location = useLocation();
+
   const user = JSON.parse(localStorage.getItem("user"));
 
   const navLinks = [
@@ -15,7 +17,6 @@ export default function Sidebar() {
     { to: "/etats", label: "États", adminOnly: true },
 
     // DOCUMENTS
-    
     { to: "/documents-list", label: "Tous les Documents", adminOnly: true },
 
     // TRACABILITE
@@ -29,6 +30,7 @@ export default function Sidebar() {
     <div className="sidebar">
 
       <div className="sidebar-header">
+
         <div className="sidebar-logo-box">
           <svg className="sidebar-bank-icon" viewBox="0 0 64 64">
             <polygon points="32,6 60,22 4,22" fill="#a8d5a2" />
@@ -44,56 +46,102 @@ export default function Sidebar() {
 
         <div className="sidebar-header-text">
           <h2 className="sidebar-title">All Doc</h2>
+
           <span className="sidebar-subtitle">
-            {user?.role === "ADMIN" ? "Administration" : "Utilisateur"}
+            {user?.role === "ADMIN"
+              ? "Administration"
+              : "Utilisateur"}
           </span>
         </div>
+
       </div>
 
       <div className="sidebar-divider" />
 
       <nav className="sidebar-nav">
+
         {navLinks
+
           .filter(link => {
-            if (link.adminOnly && user?.role !== "ADMIN") return false;
-            if (link.userOnly && user?.role !== "USER") return false;
+
+            if (link.adminOnly &&
+                user?.role !== "ADMIN") {
+              return false;
+            }
+
+            if (link.userOnly &&
+                user?.role !== "USER") {
+              return false;
+            }
+
             return true;
           })
+
           .map(link => (
+
             <Link
               key={link.to}
               to={link.to}
-              className={`sidebar-link ${location.pathname === link.to ? "active" : ""}`}
+              className={`sidebar-link ${
+                location.pathname === link.to
+                  ? "active"
+                  : ""
+              }`}
             >
               <span>{link.label}</span>
             </Link>
+
           ))}
+
       </nav>
 
       <div className="sidebar-user">
+
         <div className="sidebar-user-avatar">
           {user?.username?.charAt(0)?.toUpperCase() || "U"}
         </div>
+
         <div className="sidebar-user-info">
+
           <span className="sidebar-user-name">
             {user?.fullName || "Utilisateur"}
           </span>
+
           <span className="sidebar-user-role">
             {user?.role || "USER"}
           </span>
+
         </div>
+
       </div>
 
       <div className="sidebar-footer">
+
         <button
           className="sidebar-logout"
-          onClick={() => {
+
+          onClick={async () => {
+
+            try {
+
+              await fetch(
+                "http://localhost:8080/api/auth/logout",
+                {
+                  method: "GET",
+                  credentials: "include"
+                }
+              );
+
+            } catch (e) {}
+
             localStorage.removeItem("user");
+
             window.location.href = "/login";
           }}
         >
           Déconnexion
         </button>
+
       </div>
 
     </div>

@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.exception.UnauthorizedException;
@@ -17,6 +18,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     @Override
     public User login(String email, String password) {
 
@@ -27,7 +31,9 @@ public class AuthServiceImpl implements AuthService {
             throw new UnauthorizedException("User account is disabled");
         }
 
-        if (user.getPassword() == null || !user.getPassword().equals(password)) {
+        if (user.getPassword() == null ||
+                !passwordEncoder.matches(password, user.getPassword())) {
+
             throw new UnauthorizedException("Invalid email or password");
         }
 

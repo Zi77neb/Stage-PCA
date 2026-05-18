@@ -4,27 +4,43 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.model.entity.User;
 
+import jakarta.servlet.http.HttpSession;
+
 @Service
 public class CurrentUserService {
 
-    private User currentUser;
+    private static final String USER_SESSION_KEY = "CONNECTED_USER";
 
-    public void setUser(User user) {
-        this.currentUser = user;
+    // 🔥 SAVE USER IN SESSION
+    public void setUser(HttpSession session, User user) {
+        session.setAttribute(USER_SESSION_KEY, user);
     }
 
-    public User getCurrentUser() {
-        if (currentUser == null) {
+    // 🔥 GET CURRENT USER
+    public User getCurrentUser(HttpSession session) {
+
+        User user = (User) session.getAttribute(USER_SESSION_KEY);
+
+        if (user == null) {
             throw new RuntimeException("No user connected");
         }
-        return currentUser;
+
+        return user;
     }
 
-    public Long getCurrentUserId() {
-        return getCurrentUser().getId();
+    public Long getCurrentUserId(HttpSession session) {
+        return getCurrentUser(session).getId();
     }
 
-    public boolean isAdmin() {
-        return getCurrentUser().getRole().name().equals("ADMIN");
+    public boolean isAdmin(HttpSession session) {
+        return getCurrentUser(session)
+                .getRole()
+                .name()
+                .equals("ADMIN");
+    }
+
+    // 🔥 LOGOUT
+    public void logout(HttpSession session) {
+        session.invalidate();
     }
 }

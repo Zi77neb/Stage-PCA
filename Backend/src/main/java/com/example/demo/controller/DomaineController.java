@@ -20,6 +20,8 @@ import com.example.demo.model.entity.Domaine;
 import com.example.demo.security.CurrentUserService;
 import com.example.demo.service.interfaces.DomaineService;
 
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/api/admin/domaines")
 public class DomaineController {
@@ -30,57 +32,80 @@ public class DomaineController {
     @Autowired
     private CurrentUserService currentUserService;
 
-    private void checkAdmin() {
-        if (!currentUserService.isAdmin()) {
+    private void checkAdmin(HttpSession session) {
+        if (!currentUserService.isAdmin(session)) {
             throw new UnauthorizedException("Access denied");
         }
     }
 
     @PostMapping
-    public Domaine create(@RequestBody DomaineRequest request) {
-        checkAdmin();
+    public Domaine create(@RequestBody DomaineRequest request,
+                           HttpSession session) {
+
+        checkAdmin(session);
+
         return domaineService.create(request);
     }
 
     @GetMapping
-    public List<Domaine> getAll() {
-        checkAdmin();
+    public List<Domaine> getAll(HttpSession session) {
+
+        checkAdmin(session);
+
         return domaineService.getAll();
     }
 
     @GetMapping("/{id}")
-    public Domaine getById(@PathVariable Long id) {
-        checkAdmin();
+    public Domaine getById(@PathVariable Long id,
+                           HttpSession session) {
+
+        checkAdmin(session);
+
         return domaineService.getById(id);
     }
 
     @GetMapping("/with-banque")
-    public List<DomaineResponse> getAllWithBanque() {
-        checkAdmin();
+    public List<DomaineResponse> getAllWithBanque(HttpSession session) {
+
+        checkAdmin(session);
+
         return domaineService.getAllWithBanque();
     }
 
     @GetMapping("/search")
-    public List<Domaine> search(@RequestParam String name) {
-        checkAdmin();
+    public List<Domaine> search(@RequestParam String name,
+                                HttpSession session) {
+
+        checkAdmin(session);
+
         return domaineService.searchByName(name);
     }
 
     @GetMapping("/by-banque/{banqueId}")
-    public List<Domaine> getByBanque(@PathVariable Long banqueId) {
-        checkAdmin();
+    public List<Domaine> getByBanque(@PathVariable Long banqueId,
+                                     HttpSession session) {
+
+        checkAdmin(session);
+
         return domaineService.findByBanqueId(banqueId);
     }
 
     @PutMapping("/{id}")
-    public Domaine update(@PathVariable Long id, @RequestBody DomaineRequest request) {
-        checkAdmin();
+    public Domaine update(@PathVariable Long id,
+                          @RequestBody DomaineRequest request,
+                          HttpSession session) {
+
+        checkAdmin(session);
+
         return domaineService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        checkAdmin();
+    public void delete(@PathVariable Long id,
+                       HttpSession session) {
+
+        checkAdmin(session);
+
         domaineService.delete(id);
     }
 }

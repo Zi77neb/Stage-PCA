@@ -25,9 +25,11 @@ import com.example.demo.repository.DomaineRepository;
 import com.example.demo.repository.EtatRepository;
 import com.example.demo.security.CurrentUserService;
 
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/api/admin/etats")
-@CrossOrigin(origins = "http://localhost:5173") // ✅ AJOUT
+@CrossOrigin(origins = "http://localhost:5173")
 public class EtatController {
 
     @Autowired
@@ -39,8 +41,8 @@ public class EtatController {
     @Autowired
     private CurrentUserService currentUserService;
 
-    private void checkAdmin() {
-        if (!currentUserService.isAdmin()) {
+    private void checkAdmin(HttpSession session) {
+        if (!currentUserService.isAdmin(session)) {
             throw new UnauthorizedException("Access denied");
         }
     }
@@ -53,10 +55,11 @@ public class EtatController {
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String frequence,
             @RequestParam Long domaineId,
-            @RequestParam(required = false) MultipartFile file
+            @RequestParam(required = false) MultipartFile file,
+            HttpSession session
     ) throws IOException {
 
-        checkAdmin();
+        checkAdmin(session);
 
         Domaine domaine = domaineRepository.findById(domaineId)
                 .orElseThrow(() -> new NotFoundException("Domaine not found"));
@@ -68,7 +71,6 @@ public class EtatController {
         etat.setFrequence(frequence);
         etat.setDomaine(domaine);
 
-        // ✅ FIX CRITIQUE
         etat.setUploadPath(null);
 
         if (file != null && !file.isEmpty()) {
@@ -80,7 +82,7 @@ public class EtatController {
                 dir.mkdirs();
             }
 
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename(); // ✅ éviter doublon
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             String filePath = uploadDir + fileName;
 
             file.transferTo(new File(filePath));
@@ -100,10 +102,11 @@ public class EtatController {
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String frequence,
             @RequestParam Long domaineId,
-            @RequestParam(required = false) MultipartFile file
+            @RequestParam(required = false) MultipartFile file,
+            HttpSession session
     ) throws IOException {
 
-        checkAdmin();
+        checkAdmin(session);
 
         Etat etat = etatRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Etat not found"));
@@ -139,8 +142,9 @@ public class EtatController {
 
     // 🔥 GET ALL
     @GetMapping
-    public List<EtatResponse> getAll() {
-        checkAdmin();
+    public List<EtatResponse> getAll(HttpSession session) {
+
+        checkAdmin(session);
 
         return etatRepository.findAll()
                 .stream()
@@ -157,21 +161,30 @@ public class EtatController {
     }
 
     @GetMapping("/{id}")
-    public Etat getById(@PathVariable Long id) {
-        checkAdmin();
+    public Etat getById(@PathVariable Long id,
+                        HttpSession session) {
+
+        checkAdmin(session);
+
         return etatRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Etat not found"));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        checkAdmin();
+    public void delete(@PathVariable Long id,
+                       HttpSession session) {
+
+        checkAdmin(session);
+
         etatRepository.deleteById(id);
     }
-    @GetMapping("/search")
-public List<Etat> searchByCode(@RequestParam String code) {
-    checkAdmin();
-    return etatRepository.findByCodeContainingIgnoreCase(code);
-}
 
+    @GetMapping("/search")
+    public List<Etat> searchByCode(@RequestParam String code,
+                                   HttpSession session) {
+
+        checkAdmin(session);
+
+        return etatRepository.findByCodeContainingIgnoreCase(code);
+    }
 }

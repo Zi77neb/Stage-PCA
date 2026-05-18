@@ -17,8 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.exception.NotFoundException;
+import com.example.demo.exception.UnauthorizedException;
 import com.example.demo.model.entity.Document;
+import com.example.demo.security.CurrentUserService;
 import com.example.demo.service.interfaces.DocumentService;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/documents")
@@ -27,28 +31,47 @@ public class DocumentController {
     @Autowired
     private DocumentService documentService;
 
+    @Autowired
+    private CurrentUserService currentUserService;
+
+    private void checkAdmin(HttpSession session) {
+        if (!currentUserService.isAdmin(session)) {
+            throw new UnauthorizedException("Access denied");
+        }
+    }
+
     /**
      * GET /api/documents - Admin consultation de tous les documents
      */
     @GetMapping
-    public List<Document> getAllDocuments() {
+    public List<Document> getAllDocuments(HttpSession session) {
+
+        checkAdmin(session);
+
         return documentService.getAll();
     }
 
     /**
-     * 🔥 ADMIN VIEW (sans restriction utilisateur)
+     * 🔥 ADMIN VIEW
      */
     @GetMapping("/admin/{id}/view")
-    public ResponseEntity<Resource> viewDocumentAdmin(@PathVariable Long id) throws IOException {
+    public ResponseEntity<Resource> viewDocumentAdmin(
+            @PathVariable Long id,
+            HttpSession session
+    ) throws IOException {
+
+        checkAdmin(session);
 
         Document doc = documentService.getById(id);
 
         File file = new File(doc.getFilePath());
+
         if (!file.exists()) {
             throw new NotFoundException("File not found");
         }
 
         Path path = file.toPath();
+
         String contentType = Files.probeContentType(path);
 
         if (contentType == null) {
@@ -68,16 +91,23 @@ public class DocumentController {
      * 🔥 ADMIN DOWNLOAD
      */
     @GetMapping("/admin/{id}/download")
-    public ResponseEntity<Resource> downloadDocumentAdmin(@PathVariable Long id) throws IOException {
+    public ResponseEntity<Resource> downloadDocumentAdmin(
+            @PathVariable Long id,
+            HttpSession session
+    ) throws IOException {
+
+        checkAdmin(session);
 
         Document doc = documentService.getById(id);
 
         File file = new File(doc.getFilePath());
+
         if (!file.exists()) {
             throw new NotFoundException("File not found");
         }
 
         Path path = file.toPath();
+
         String contentType = Files.probeContentType(path);
 
         if (contentType == null) {
