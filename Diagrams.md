@@ -4,6 +4,7 @@
 
 ```mermaid
 classDiagram
+
     class User {
         - id: Long
         - username: String
@@ -13,31 +14,58 @@ classDiagram
         - role: Role (ADMIN/USER)
         - status: Status (ACTIVE/INACTIVE)
         - createdAt: LocalDateTime
-        + getId()
-        + getUsername()
+        + getId(): Long
+        + getUsername(): String
+        + getFullName(): String
+        + getEmail(): String
+        + getPassword(): String
+        + getRole(): Role
+        + getStatus(): Status
+        + getCreatedAt(): LocalDateTime
         + getBanques(): Set~Banque~
         + getDomaines(): Set~Domaine~
         + getEtats(): Set~Etat~
+        + setPassword(pw: String): void
+        + addBanque(b: Banque): void
+        + removeBanque(b: Banque): void
+        + addDomaine(d: Domaine): void
+        + removeDomaine(d: Domaine): void
+        + addEtat(e: Etat): void
+        + removeEtat(e: Etat): void
     }
 
     class Banque {
         - id: Long
         - name: String
-        + getId()
-        + getName()
+        + getId(): Long
+        + getName(): String
+        + setName(n: String): void
         + getDomaines(): Set~Domaine~
+        + addDomaine(d: Domaine): void
+        + removeDomaine(d: Domaine): void
         + getEtats(): Set~Etat~
+        + addEtat(e: Etat): void
+        + removeEtat(e: Etat): void
         + getUsers(): Set~User~
+        + addUser(u: User): void
+        + removeUser(u: User): void
     }
 
     class Domaine {
         - id: Long
         - name: String
-        + getId()
-        + getName()
+        + getId(): Long
+        + getName(): String
+        + setName(n: String): void
         + getBanques(): Set~Banque~
+        + addBanque(b: Banque): void
+        + removeBanque(b: Banque): void
         + getEtats(): Set~Etat~
+        + addEtat(e: Etat): void
+        + removeEtat(e: Etat): void
         + getUsers(): Set~User~
+        + addUser(u: User): void
+        + removeUser(u: User): void
     }
 
     class Etat {
@@ -47,23 +75,36 @@ classDiagram
         - description: String
         - frequence: String (HOURLY/DAILY/WEEKLY/MONTHLY/YEARLY)
         - uploadPath: String
-        + getId()
-        + getCode()
-        + getNom()
+        + getId(): Long
+        + getCode(): String
+        + getNom(): String
+        + getDescription(): String
+        + getFrequence(): String
+        + getUploadPath(): String
         + getDomaine(): Domaine
+        + setDomaine(d: Domaine): void
         + getUsers(): Set~User~
+        + addUser(u: User): void
+        + removeUser(u: User): void
     }
 
     class Document {
         - id: Long
         - fileName: String
         - filePath: String
-        - dateDocument: LocalDateTime
+        - dateDocument: LocalDate
         - uploadedAt: LocalDateTime
-        + getId()
-        + getFileName()
-        + getBanque(): Banque
+        + getId(): Long
+        + getFileName(): String
+        + setFileName(n: String): void
+        + getFilePath(): String
+        + setFilePath(p: String): void
+        + getDateDocument(): LocalDate
+        + setDateDocument(d: LocalDate): void
+        + getUploadedAt(): LocalDateTime
+        + setUploadedAt(dt: LocalDateTime): void
         + getEtat(): Etat
+        + setEtat(e: Etat): void
     }
 
     class DocumentUser {
@@ -71,34 +112,45 @@ classDiagram
         - viewed: Boolean
         - viewedAt: LocalDateTime
         - assignedAt: LocalDateTime
-        + getId()
-        + isViewed()
+        + getId(): Long
+        + isViewed(): Boolean
+        + setViewed(v: Boolean): void
+        + getViewedAt(): LocalDateTime
+        + setViewedAt(dt: LocalDateTime): void
+        + getAssignedAt(): LocalDateTime
+        + setAssignedAt(dt: LocalDateTime): void
         + getUser(): User
+        + setUser(u: User): void
         + getDocument(): Document
+        + setDocument(d: Document): void
     }
 
     class Trace {
         - id: Long
         - action: String (VIEW, DOWNLOAD)
         - actionDate: LocalDateTime
-        + getId()
-        + getAction()
+        + getId(): Long
+        + getAction(): String
+        + setAction(a: String): void
+        + getActionDate(): LocalDateTime
+        + setActionDate(dt: LocalDateTime): void
         + getUser(): User
+        + setUser(u: User): void
         + getDocument(): Document
+        + setDocument(d: Document): void
     }
 
-    User "1" --> "*" Banque : banques (M2M)
-    User "1" --> "*" Domaine : domaines (M2M)
-    User "1" --> "*" Etat : etats (M2M)
-    Banque "1" --> "*" Domaine : domaines (M2M)
-    Banque "1" --> "*" Etat : etats (M2M)
-    Domaine "1" --> "*" Etat : etats (1toM)
-    Document "1" --> "1" Banque : banque
-    Document "1" --> "1" Etat : etat
-    DocumentUser "1" --> "1" User : user
-    DocumentUser "1" --> "1" Document : document
-    Trace "1" --> "1" User : user
-    Trace "1" --> "1" Document : document
+    User "*" -- "*" Banque : banques
+    User "*" -- "*" Domaine : domaines
+    User "*" -- "*" Etat : etats
+    Banque "*" -- "*" Domaine : domaines
+    Banque "*" -- "*" Etat : etats
+    Domaine "1" -- "*" Etat : etats
+    Document "*" -- "1" Etat : etat
+    DocumentUser "*" -- "1" User : user
+    DocumentUser "*" -- "1" Document : document
+    Trace "*" -- "1" User : user
+    Trace "*" -- "1" Document : document
 ```
 
 ---

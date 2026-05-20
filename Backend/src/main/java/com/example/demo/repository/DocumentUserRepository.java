@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.demo.model.entity.DocumentUser;
 
-public interface DocumentUserRepository extends JpaRepository<DocumentUser, Long> {
+public interface DocumentUserRepository
+        extends JpaRepository<DocumentUser, Long> {
 
     List<DocumentUser> findByUser_Id(Long userId);
 
     List<DocumentUser> findByDocument_Id(Long documentId);
+
+    void deleteByUser_Id(Long userId);
 }

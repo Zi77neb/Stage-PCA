@@ -1,6 +1,10 @@
+
 package com.example.demo.service;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +31,21 @@ public class FileWatcherService {
     @Autowired
     private DocumentAssignmentService documentAssignmentService;
 
-    private final String folderPath = System.getProperty("user.dir") + "/uploads/documents/";
+    // ✅ DOSSIER DOCUMENTS
+
+    private final String folderPath =
+            System.getProperty("user.dir")
+                    + "/uploads/documents/";
+
+    // ✅ DOSSIER REJETS
+
+    private final String rejectedFolderPath =
+            System.getProperty("user.dir")
+                    + "/uploads/rejets/";
+
+    // =========================
+    // WATCH FOLDER
+    // =========================
 
     @Scheduled(fixedRate = 5000)
     public void watchFolder() {
@@ -35,11 +53,24 @@ public class FileWatcherService {
         File folder = new File(folderPath);
 
         if (!folder.exists()) {
+
             folder.mkdirs();
+
             return;
         }
 
+        // ✅ CREATE REJECT FOLDER
+
+        File rejectedFolder =
+                new File(rejectedFolderPath);
+
+        if (!rejectedFolder.exists()) {
+
+            rejectedFolder.mkdirs();
+        }
+
         File[] files = folder.listFiles();
+
         if (files == null) return;
 
         for (File file : files) {
@@ -47,58 +78,190 @@ public class FileWatcherService {
             if (file.isDirectory()) continue;
 
             try {
+
                 processFile(file);
+
             } catch (Exception e) {
-                System.out.println("Erreur fichier: " + file.getName());
+
+                System.out.println(
+                        "❌ erreur fichier: "
+                                + file.getName()
+                );
+
+                // ✅ MOVE TO REJECTS
+
+                moveToRejected(file);
             }
         }
     }
+
+    // =========================
+    // PROCESS FILE
+    // =========================
 
     private void processFile(File file) {
 
         String fileName = file.getName();
 
-        // 🔥 éviter doublon
-        if (documentService.findByFileName(fileName).isPresent()) {
+        // ✅ AVOID DUPLICATE
+
+        if (documentService
+                .findByFileName(fileName)
+                .isPresent()) {
+
+            System.out.println(
+                    "⚠️ fichier déjà traité: "
+                            + fileName
+            );
+
             return;
         }
 
         try {
-            // 🔥 EXTENSION SAFE (pdf, excel, etc)
-            String nameWithoutExt = fileName.contains(".")
-                    ? fileName.substring(0, fileName.lastIndexOf("."))
-                    : fileName;
 
-            String[] parts = nameWithoutExt.split("-");
+            // ✅ REMOVE EXTENSION
+
+            String nameWithoutExt =
+                    fileName.contains(".")
+                            ? fileName.substring(
+                                    0,
+                                    fileName.lastIndexOf(".")
+                            )
+                            : fileName;
+
+            // ✅ SPLIT NAME
+
+            String[] parts =
+                    nameWithoutExt.split("-");
+
+            // ✅ FORMAT VALIDATION
 
             if (parts.length < 4) {
-                System.out.println("❌ mauvais format: " + fileName);
+
+                System.out.println(
+                        "❌ mauvais format: "
+                                + fileName
+                );
+
+                moveToRejected(file);
+
                 return;
             }
 
+            // ✅ CODE + DATE
+
             String code = parts[0];
-            String dateStr = parts[1] + "-" + parts[2] + "-" + parts[3];
 
-            LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            String dateStr =
+                    parts[1]
+                            + "-"
+                            + parts[2]
+                            + "-"
+                            + parts[3];
 
-            Etat etat = etatService.getByCode(code);
+            // ✅ PARSE DATE
+
+            LocalDate date =
+                    LocalDate.parse(
+                            dateStr,
+                            DateTimeFormatter.ofPattern(
+                                    "dd-MM-yyyy"
+                            )
+                    );
+
+            // ✅ FIND ETAT
+
+            Etat etat =
+                    etatService.getByCode(code);
+
+            // ✅ CREATE DOCUMENT
 
             Document doc = new Document();
+
             doc.setFileName(fileName);
-            doc.setFilePath(file.getAbsolutePath());
+
+            doc.setFilePath(
+                    file.getAbsolutePath()
+            );
+
             doc.setEtat(etat);
+
             doc.setDateDocument(date);
-            doc.setUploadedAt(LocalDateTime.now());
 
-            Document saved = documentService.save(doc);
+            doc.setUploadedAt(
+                    LocalDateTime.now()
+            );
 
-            // 🔥 CRUCIAL
-            documentAssignmentService.assignUsers(saved);
+            // ✅ SAVE DOCUMENT
 
-            System.out.println("✅ traité + assigné: " + fileName);
+            Document saved =
+                    documentService.save(doc);
+
+            // ✅ ASSIGN USERS
+
+            documentAssignmentService
+                    .assignUsers(saved);
+
+            System.out.println(
+                    "✅ traité + assigné: "
+                            + fileName
+            );
 
         } catch (Exception e) {
-            System.out.println("❌ erreur parsing: " + fileName + " -> " + e.getMessage());
+
+            System.out.println(
+                    "❌ erreur parsing: "
+                            + fileName
+                            + " -> "
+                            + e.getMessage()
+            );
+
+            // ✅ MOVE TO REJECTS
+
+            moveToRejected(file);
+        }
+    }
+
+    // =========================
+    // MOVE FILE TO REJECTS
+    // =========================
+
+    private void moveToRejected(File file) {
+
+        try {
+
+            File rejectedFolder =
+                    new File(rejectedFolderPath);
+
+            if (!rejectedFolder.exists()) {
+
+                rejectedFolder.mkdirs();
+            }
+
+            File destination =
+                    new File(
+                            rejectedFolder,
+                            file.getName()
+                    );
+
+            Files.move(
+                    file.toPath(),
+                    destination.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+
+            System.out.println(
+                    "📁 déplacé vers rejets: "
+                            + file.getName()
+            );
+
+        } catch (IOException e) {
+
+            System.out.println(
+                    "❌ impossible déplacer fichier rejeté: "
+                            + file.getName()
+            );
         }
     }
 }
+

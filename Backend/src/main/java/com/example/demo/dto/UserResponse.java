@@ -6,15 +6,26 @@ import java.util.List;
 public class UserResponse {
 
     private final Long id;
+
     private final String username;
+
     private final String fullName;
+
     private final String email;
+
     private final String role;
+
     private final String status;
+
+    // ✅ IMPORTANT
+    private final boolean firstLogin;
+
     private final LocalDateTime createdAt;
 
     private final List<String> banques;
+
     private final List<String> domaines;
+
     private final List<String> etats;
 
     public UserResponse(
@@ -24,20 +35,37 @@ public class UserResponse {
             String email,
             String role,
             String status,
+
+            // ✅ AJOUT
+            boolean firstLogin,
+
             LocalDateTime createdAt,
             List<String> banques,
             List<String> domaines,
             List<String> etats
     ) {
+
         this.id = id;
+
         this.username = username;
+
         this.fullName = fullName;
+
         this.email = email;
+
         this.role = role;
+
         this.status = status;
+
+        // ✅ AJOUT
+        this.firstLogin = firstLogin;
+
         this.createdAt = createdAt;
+
         this.banques = banques;
+
         this.domaines = domaines;
+
         this.etats = etats;
     }
 
@@ -63,6 +91,11 @@ public class UserResponse {
 
     public String getStatus() {
         return status;
+    }
+
+    // ✅ GETTER
+    public boolean isFirstLogin() {
+        return firstLogin;
     }
 
     public LocalDateTime getCreatedAt() {

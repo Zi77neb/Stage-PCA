@@ -1,3 +1,4 @@
+
 package com.example.demo.service.impl;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.UserRequest;
 import com.example.demo.exception.NotFoundException;
@@ -19,12 +21,12 @@ import com.example.demo.model.entity.User;
 import com.example.demo.model.enums.Role;
 import com.example.demo.model.enums.Status;
 import com.example.demo.repository.BanqueRepository;
+import com.example.demo.repository.DocumentUserRepository;
 import com.example.demo.repository.DomaineRepository;
 import com.example.demo.repository.EtatRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.EmailService;
 import com.example.demo.service.interfaces.UserService;
-
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -41,94 +43,186 @@ public class UserServiceImpl implements UserService {
     private EtatRepository etatRepository;
 
     @Autowired
+    private DocumentUserRepository documentUserRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private EmailService emailService;
 
+    // =========================
+    // GET ALL USERS
+    // =========================
+
     @Override
     public List<User> getAllUsers() {
+
         return userRepository.findAll();
     }
 
-    @Override
-    public User getById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-    }
+    // =========================
+    // GET USER BY ID
+    // =========================
 
     @Override
-    public Optional<User> findByEmail(String email) {
+    public User getById(Long id) {
+
+        return userRepository.findById(id)
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "User not found"
+                        ));
+    }
+
+    // =========================
+    // FIND BY EMAIL
+    // =========================
+
+    @Override
+    public Optional<User> findByEmail(
+            String email
+    ) {
+
         return userRepository.findByEmail(email);
     }
 
+    // =========================
+    // CREATE USER
+    // =========================
+
     @Override
-    public User createUser(UserRequest request) {
+    public User createUser(
+            UserRequest request
+    ) {
 
         User user = new User();
 
-        user.setUsername(request.getUsername());
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
+        // BASIC INFOS
 
-        user.setRole(Role.valueOf(request.getRole()));
-
-        user.setStatus(Status.ACTIVE);
-
-        user.setCreatedAt(LocalDateTime.now());
-
-        // 🔥 HASH PASSWORD
-        user.setPassword(
-                passwordEncoder.encode(request.getPassword())
+        user.setUsername(
+                request.getUsername()
         );
 
-        Set<Banque> banques = new HashSet<>();
+        user.setFullName(
+                request.getFullName()
+        );
+
+        user.setEmail(
+                request.getEmail()
+        );
+
+        user.setRole(
+                Role.valueOf(
+                        request.getRole()
+                )
+        );
+
+        user.setStatus(
+                Status.ACTIVE
+        );
+
+        // FIRST LOGIN
+
+        user.setFirstLogin(true);
+
+        user.setCreatedAt(
+                LocalDateTime.now()
+        );
+
+        // PASSWORD HASH
+
+        user.setPassword(
+                passwordEncoder.encode(
+                        request.getPassword()
+                )
+        );
+
+        // =========================
+        // BANQUES
+        // =========================
+
+        Set<Banque> banques =
+                new HashSet<>();
 
         if (request.getBanqueIds() != null) {
 
             banques = new HashSet<>(
-                    banqueRepository.findAllById(request.getBanqueIds())
+                    banqueRepository.findAllById(
+                            request.getBanqueIds()
+                    )
             );
 
             user.setBanques(banques);
         }
 
-        Set<Domaine> domaines = new HashSet<>();
+        // =========================
+        // DOMAINES
+        // =========================
+
+        Set<Domaine> domaines =
+                new HashSet<>();
 
         if (request.getDomaineIds() != null) {
 
             domaines = new HashSet<>(
-                    domaineRepository.findAllById(request.getDomaineIds())
+                    domaineRepository.findAllById(
+                            request.getDomaineIds()
+                    )
             );
 
             for (Domaine d : domaines) {
 
-                boolean valid = banques.stream()
-                        .anyMatch(b -> b.getDomaines().contains(d));
+                boolean valid =
+                        banques.stream()
+                                .anyMatch(
+                                        b ->
+                                                b.getDomaines()
+                                                        .contains(d)
+                                );
 
                 if (!valid) {
-                    throw new IllegalArgumentException("Domaine hors banque");
+
+                    throw new IllegalArgumentException(
+                            "Domaine hors banque"
+                    );
                 }
             }
 
             user.setDomaines(domaines);
         }
 
+        // =========================
+        // ETATS
+        // =========================
+
         if (request.getEtatIds() != null) {
 
-            Set<Etat> etats = new HashSet<>(
-                    etatRepository.findAllById(request.getEtatIds())
-            );
+            Set<Etat> etats =
+                    new HashSet<>(
+                            etatRepository.findAllById(
+                                    request.getEtatIds()
+                            )
+                    );
 
             for (Etat e : etats) {
 
                 boolean validDomaine =
-                        domaines.contains(e.getDomaine());
+                        domaines.contains(
+                                e.getDomaine()
+                        );
 
-                boolean validBanque = banques.stream()
-                        .anyMatch(b -> b.getEtats().contains(e));
+                boolean validBanque =
+                        banques.stream()
+                                .anyMatch(
+                                        b ->
+                                                b.getEtats()
+                                                        .contains(e)
+                                );
 
-                if (!validDomaine || !validBanque) {
+                if (!validDomaine ||
+                        !validBanque) {
+
                     throw new IllegalArgumentException(
                             "Etat invalide pour cet utilisateur"
                     );
@@ -138,7 +232,16 @@ public class UserServiceImpl implements UserService {
             user.setEtats(etats);
         }
 
-        User savedUser = userRepository.save(user);
+        // =========================
+        // SAVE USER
+        // =========================
+
+        User savedUser =
+                userRepository.save(user);
+
+        // =========================
+        // SEND EMAIL
+        // =========================
 
         emailService.sendAccountEmail(
                 savedUser.getEmail(),
@@ -149,74 +252,138 @@ public class UserServiceImpl implements UserService {
         return savedUser;
     }
 
+    // =========================
+    // UPDATE USER
+    // =========================
+
     @Override
-    public User updateUser(Long id, UserRequest request) {
+    public User updateUser(
+            Long id,
+            UserRequest request
+    ) {
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        User user =
+                userRepository.findById(id)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "User not found"
+                                ));
 
-        user.setUsername(request.getUsername());
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
+        user.setUsername(
+                request.getUsername()
+        );
 
-        user.setRole(Role.valueOf(request.getRole()));
+        user.setFullName(
+                request.getFullName()
+        );
 
-        // 🔥 HASH PASSWORD
+        user.setEmail(
+                request.getEmail()
+        );
+
+        user.setRole(
+                Role.valueOf(
+                        request.getRole()
+                )
+        );
+
+        // PASSWORD
+
         if (request.getPassword() != null &&
                 !request.getPassword().isEmpty()) {
 
             user.setPassword(
-                    passwordEncoder.encode(request.getPassword())
+                    passwordEncoder.encode(
+                            request.getPassword()
+                    )
             );
         }
 
-        Set<Banque> banques = new HashSet<>();
+        // =========================
+        // BANQUES
+        // =========================
+
+        Set<Banque> banques =
+                new HashSet<>();
 
         if (request.getBanqueIds() != null) {
 
             banques = new HashSet<>(
-                    banqueRepository.findAllById(request.getBanqueIds())
+                    banqueRepository.findAllById(
+                            request.getBanqueIds()
+                    )
             );
 
             user.setBanques(banques);
         }
 
-        Set<Domaine> domaines = new HashSet<>();
+        // =========================
+        // DOMAINES
+        // =========================
+
+        Set<Domaine> domaines =
+                new HashSet<>();
 
         if (request.getDomaineIds() != null) {
 
             domaines = new HashSet<>(
-                    domaineRepository.findAllById(request.getDomaineIds())
+                    domaineRepository.findAllById(
+                            request.getDomaineIds()
+                    )
             );
 
             for (Domaine d : domaines) {
 
-                boolean valid = banques.stream()
-                        .anyMatch(b -> b.getDomaines().contains(d));
+                boolean valid =
+                        banques.stream()
+                                .anyMatch(
+                                        b ->
+                                                b.getDomaines()
+                                                        .contains(d)
+                                );
 
                 if (!valid) {
-                    throw new IllegalArgumentException("Domaine hors banque");
+
+                    throw new IllegalArgumentException(
+                            "Domaine hors banque"
+                    );
                 }
             }
 
             user.setDomaines(domaines);
         }
 
+        // =========================
+        // ETATS
+        // =========================
+
         if (request.getEtatIds() != null) {
 
-            Set<Etat> etats = new HashSet<>(
-                    etatRepository.findAllById(request.getEtatIds())
-            );
+            Set<Etat> etats =
+                    new HashSet<>(
+                            etatRepository.findAllById(
+                                    request.getEtatIds()
+                            )
+                    );
 
             for (Etat e : etats) {
 
                 boolean validDomaine =
-                        domaines.contains(e.getDomaine());
+                        domaines.contains(
+                                e.getDomaine()
+                        );
 
-                boolean validBanque = banques.stream()
-                        .anyMatch(b -> b.getEtats().contains(e));
+                boolean validBanque =
+                        banques.stream()
+                                .anyMatch(
+                                        b ->
+                                                b.getEtats()
+                                                        .contains(e)
+                                );
 
-                if (!validDomaine || !validBanque) {
+                if (!validDomaine ||
+                        !validBanque) {
+
                     throw new IllegalArgumentException(
                             "Etat invalide pour cet utilisateur"
                     );
@@ -229,53 +396,146 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    // =========================
+    // DELETE USER
+    // =========================
+
     @Override
+    @Transactional
     public void deleteUser(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "User not found"
+                        ));
+
+        // ✅ DELETE DOCUMENT RELATIONS
+
+        documentUserRepository
+                .deleteByUser_Id(id);
+
+        // ✅ CLEAR RELATIONS
+
+        user.getBanques().clear();
+
+        user.getDomaines().clear();
+
+        user.getEtats().clear();
+
+        // ✅ SAVE CLEAN USER
+
+        userRepository.save(user);
+
+        // ✅ DELETE USER
 
         userRepository.delete(user);
     }
 
-    @Override
-    public List<User> searchByUsername(String username) {
+    // =========================
+    // SEARCH USERNAME
+    // =========================
 
-        return userRepository.findAll().stream()
-                .filter(u -> u.getUsername() != null &&
-                        u.getUsername()
-                                .toLowerCase()
-                                .contains(username.toLowerCase()))
+    @Override
+    public List<User> searchByUsername(
+            String username
+    ) {
+
+        return userRepository.findAll()
+                .stream()
+                .filter(u ->
+                        u.getUsername() != null &&
+                                u.getUsername()
+                                        .toLowerCase()
+                                        .contains(
+                                                username.toLowerCase()
+                                        )
+                )
                 .toList();
     }
 
-    @Override
-    public List<User> findByBanqueId(Long banqueId) {
+    // =========================
+    // FIND BY BANQUE
+    // =========================
 
-        return userRepository.findAll().stream()
-                .filter(u -> u.getBanques()
-                        .stream()
-                        .anyMatch(b -> b.getId().equals(banqueId)))
+    @Override
+    public List<User> findByBanqueId(
+            Long banqueId
+    ) {
+
+        return userRepository.findAll()
+                .stream()
+                .filter(u ->
+                        u.getBanques()
+                                .stream()
+                                .anyMatch(
+                                        b ->
+                                                b.getId()
+                                                        .equals(
+                                                                banqueId
+                                                        )
+                                )
+                )
                 .toList();
     }
 
-    @Override
-    public List<User> findByDomaineId(Long domaineId) {
+    // =========================
+    // FIND BY DOMAINE
+    // =========================
 
-        return userRepository.findAll().stream()
-                .filter(u -> u.getDomaines()
-                        .stream()
-                        .anyMatch(d -> d.getId().equals(domaineId)))
+    @Override
+    public List<User> findByDomaineId(
+            Long domaineId
+    ) {
+
+        return userRepository.findAll()
+                .stream()
+                .filter(u ->
+                        u.getDomaines()
+                                .stream()
+                                .anyMatch(
+                                        d ->
+                                                d.getId()
+                                                        .equals(
+                                                                domaineId
+                                                        )
+                                )
+                )
                 .toList();
     }
 
-    @Override
-    public List<User> findByEtatId(Long etatId) {
+    // =========================
+    // SAVE USER
+    // =========================
 
-        return userRepository.findAll().stream()
-                .filter(u -> u.getEtats()
-                        .stream()
-                        .anyMatch(e -> e.getId().equals(etatId)))
+    @Override
+    public User save(User user) {
+
+        return userRepository.save(user);
+    }
+
+    // =========================
+    // FIND BY ETAT
+    // =========================
+
+    @Override
+    public List<User> findByEtatId(
+            Long etatId
+    ) {
+
+        return userRepository.findAll()
+                .stream()
+                .filter(u ->
+                        u.getEtats()
+                                .stream()
+                                .anyMatch(
+                                        e ->
+                                                e.getId()
+                                                        .equals(
+                                                                etatId
+                                                        )
+                                )
+                )
                 .toList();
     }
 }

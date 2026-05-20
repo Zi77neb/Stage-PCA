@@ -11,7 +11,7 @@ import ManageDomaines from "../pages/admin/ManageDomaines";
 import ManageBanques from "../pages/admin/ManageBanque";
 import ManageTraces from "../pages/admin/ManageTraces";
 import ManageDocuments from "../pages/admin/ManageDocuments";
-
+import ChangePassword from "../pages/user/ChangePassword";
 import UserDashboard from "../pages/user/UserDashboard";
 import UserDocuments from "../pages/user/UserDocuments";
 
@@ -47,7 +47,17 @@ export default function AppRoutes() {
               : <Navigate to="/dashboard" replace />
           }
         />
+        <Route
+  path="/change-password"
+  element={
 
+    <ProtectedRoute>
+
+      <ChangePassword />
+
+    </ProtectedRoute>
+  }
+/>
         {/* 👑 ADMIN */}
 
         <Route

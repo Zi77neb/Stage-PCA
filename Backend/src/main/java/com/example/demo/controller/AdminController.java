@@ -40,31 +40,35 @@ public class AdminController {
 
     private UserResponse mapUser(User user) {
 
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getRole().name(),
-                user.getStatus().name(),
-                user.getCreatedAt(),
+    return new UserResponse(
+            user.getId(),
+            user.getUsername(),
+            user.getFullName(),
+            user.getEmail(),
+            user.getRole().name(),
+            user.getStatus().name(),
 
-                user.getBanques()
-                        .stream()
-                        .map(b -> b.getName())
-                        .toList(),
+            // ✅ AJOUT
+            user.isFirstLogin(),
 
-                user.getDomaines()
-                        .stream()
-                        .map(d -> d.getName())
-                        .toList(),
+            user.getCreatedAt(),
 
-                user.getEtats()
-                        .stream()
-                        .map(e -> e.getNom())
-                        .toList()
-        );
-    }
+            user.getBanques()
+                    .stream()
+                    .map(b -> b.getName())
+                    .toList(),
+
+            user.getDomaines()
+                    .stream()
+                    .map(d -> d.getName())
+                    .toList(),
+
+            user.getEtats()
+                    .stream()
+                    .map(e -> e.getNom())
+                    .toList()
+    );
+}
 
     @GetMapping("/users")
     public List<UserResponse> getAllUsers(HttpSession session) {

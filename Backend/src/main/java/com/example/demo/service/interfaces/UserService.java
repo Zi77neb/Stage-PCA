@@ -11,7 +11,7 @@ public interface UserService {
     List<User> getAllUsers();
 
     User getById(Long id);
-
+    User save(User user);
     Optional<User> findByEmail(String email);
 
     User createUser(UserRequest request);
